@@ -25,7 +25,8 @@ jobs:
         lftp -e "
         set ftp:ssl-allow no;
         open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
-        mirror -Rev --exclude .git/ --exclude .github/ --exclude '*.md' . ./public_html;
+        cd public_html;
+        mirror -Rev --exclude .git/ --exclude .github/ --exclude '*.md' . .;
         bye
         "
 
