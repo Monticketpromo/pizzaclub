@@ -3102,14 +3102,18 @@ function canOrderNow() {
     const currentDay = now.getDay(); // 0=dimanche, 1=lundi, etc.
     const currentHour = now.getHours();
     
-    // Vérifier si le restaurant est fermé aujourd'hui
+    // Vérifier si le restaurant est fermé toute la journée (lundi)
     if (CONFIG.openingHours.closedDays && CONFIG.openingHours.closedDays.includes(currentDay)) {
-        return false; // Fermé aujourd'hui
+        return false; // Fermé toute la journée
     }
     
     // Service midi : commande "maintenant" possible de 10h à 14h
     if (currentHour >= (CONFIG.openingHours.midi.start - CONFIG.openingHours.preorderBuffer) && 
         currentHour < CONFIG.openingHours.midi.end) {
+        // Vérifier si le midi est fermé ce jour (dimanche)
+        if (CONFIG.openingHours.closedMidi && CONFIG.openingHours.closedMidi.includes(currentDay)) {
+            return false; // Fermé le midi aujourd'hui
+        }
         return true;
     }
     
@@ -3135,9 +3139,13 @@ function openDeliveryTimeModal() {
     const canNow = canOrderNow();
     const now = new Date();
     const currentDay = now.getDay();
-    const isClosed = CONFIG.openingHours.closedDays && CONFIG.openingHours.closedDays.includes(currentDay);
+    const currentHour = now.getHours();
+    const isClosedAllDay = CONFIG.openingHours.closedDays && CONFIG.openingHours.closedDays.includes(currentDay);
+    const isClosedMidi = CONFIG.openingHours.closedMidi && CONFIG.openingHours.closedMidi.includes(currentDay) && 
+                         currentHour >= (CONFIG.openingHours.midi.start - CONFIG.openingHours.preorderBuffer) && 
+                         currentHour < CONFIG.openingHours.midi.end;
     
-    console.log('canOrderNow:', canNow, 'currentDay:', currentDay, 'isClosed:', isClosed);
+    console.log('canOrderNow:', canNow, 'currentDay:', currentDay, 'isClosedAllDay:', isClosedAllDay, 'isClosedMidi:', isClosedMidi);
     
     // Afficher/cacher le message de fermeture
     const closedWarning = document.getElementById('closedWarning');
@@ -3147,8 +3155,10 @@ function openDeliveryTimeModal() {
             // Personnaliser le message selon la situation
             const warningText = closedWarning.querySelector('p:last-child');
             if (warningText) {
-                if (isClosed) {
+                if (isClosedAllDay) {
                     warningText.innerHTML = 'Nous sommes fermés le lundi.<br>Vous pouvez programmer votre commande pour un autre jour.';
+                } else if (isClosedMidi) {
+                    warningText.innerHTML = 'Nous sommes fermés le dimanche midi.<br>Vous pouvez commander pour ce soir (à partir de 17h) ou programmer pour un autre jour.';
                 } else {
                     warningText.innerHTML = 'Heures d\'ouverture des commandes : 10h-14h et 17h-21h<br>Vous pouvez programmer votre commande pour plus tard.';
                 }
@@ -3200,7 +3210,7 @@ function openDeliveryTimeModal() {
     // Initialiser la date à aujourd'hui (ou demain si fermé aujourd'hui)
     const dateInput = document.getElementById('globalScheduledDate');
     if (dateInput) {
-        const dateToSet = isClosed ? new Date(now.getTime() + 24*60*60*1000) : now; // Demain si fermé
+        const dateToSet = isClosedAllDay ? new Date(now.getTime() + 24*60*60*1000) : now; // Demain si fermé toute la journée
         const year = dateToSet.getFullYear();
         const month = String(dateToSet.getMonth() + 1).padStart(2, '0');
         const day = String(dateToSet.getDate()).padStart(2, '0');
