@@ -104,10 +104,10 @@ function getClientEmailTemplate($orderData) {
                 
                 <div class="social-links">
                     <strong>Suivez-nous :</strong><br><br>
-                    <a href="https://www.facebook.com/pizzaclubreunion" target="_blank" title="Facebook">
+                    <a href="https://www.facebook.com/pizzaclub974" target="_blank" title="Facebook">
                         <img src="https://cdn-icons-png.flaticon.com/512/733/733547.png" alt="Facebook" class="social-icon">
                     </a>
-                    <a href="https://www.instagram.com/pizzaclub.re" target="_blank" title="Instagram">
+                    <a href="https://www.instagram.com/pizzaclub974" target="_blank" title="Instagram">
                         <img src="https://cdn-icons-png.flaticon.com/512/2111/2111463.png" alt="Instagram" class="social-icon">
                     </a>
                     <a href="https://www.tiktok.com/@pizzaclub.re" target="_blank" title="TikTok">
