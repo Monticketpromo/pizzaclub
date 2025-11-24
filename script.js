@@ -300,7 +300,7 @@ function createPizzaCard(pizza) {
 
     card.innerHTML = `
         <div class="pizza-image">
-            <img src="${pizza.image}" alt="${pizza.name}" onerror="this.src='https://via.placeholder.com/500x300?text=Pizza'">
+            <img src="${pizza.image}" alt="${pizza.name}">
             ${pizza.badge ? `<div class="pizza-badge">${pizza.badge}</div>` : ''}
         </div>
         <div class="pizza-content">
@@ -435,7 +435,7 @@ function createSimpleCard(item, type) {
     
     card.innerHTML = `
         <div class="pizza-image">
-            <img src="${item.image}" alt="${item.name}" onerror="this.src='https://via.placeholder.com/500x300?text=${type}'">
+            <img src="${item.image}" alt="${item.name}">
         </div>
         <div class="pizza-content">
             <div class="pizza-header">

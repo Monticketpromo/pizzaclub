@@ -505,7 +505,7 @@ const PATES_DATA = [
         description: 'Sauce maison : Crème, lardons frais, oignon, aromate',
         priceL: 8.90,
         priceXL: 11.90,
-        image: 'img/Pâtes/Carbo.JPG',
+        image: 'img/Pâtes/carbo decoupe.png',
         category: 'pates',
         bases: ['Classique', 'Ricotta Épinard', 'Gnocchi']
     },
@@ -706,7 +706,7 @@ const DESSERTS_DATA = [
         name: 'Crème Brûlée',
         description: 'Crème brûlée maison',
         price: 3.90,
-        image: 'img/CREME BRULEE.jpg',
+        image: 'img/CREME BRULEE.jpeg',
         category: 'desserts'
     },
     {
