@@ -79,7 +79,10 @@ if (!empty($orderData['customer']['comments'])) {
 // Headers pour l'email
 $headers = "From: Pizza Club <noreply@pizzaclub.re>\r\n";
 $headers .= "Reply-To: " . ($orderData['customer']['email'] ?: 'noreply@pizzaclub.re') . "\r\n";
+$headers .= "Return-Path: noreply@pizzaclub.re\r\n";
 $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
+$headers .= "X-Priority: 1\r\n";
+$headers .= "Importance: High\r\n";
 $headers .= "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
 
