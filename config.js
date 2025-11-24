@@ -39,6 +39,7 @@ const CONFIG = {
     
     // Heures d'ouverture
     openingHours: {
+        closedDays: [1], // Jours fermés (0=dimanche, 1=lundi, 2=mardi, etc.)
         midi: {
             start: 11,  // 11h
             end: 14     // 14h (fermeture cuisine)

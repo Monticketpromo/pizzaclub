@@ -3078,7 +3078,14 @@ function isWithinOpeningHours() {
 }
 
 function canOrderNow() {
-    const currentHour = new Date().getHours();
+    const now = new Date();
+    const currentDay = now.getDay(); // 0=dimanche, 1=lundi, etc.
+    const currentHour = now.getHours();
+    
+    // Vérifier si le restaurant est fermé aujourd'hui
+    if (CONFIG.openingHours.closedDays && CONFIG.openingHours.closedDays.includes(currentDay)) {
+        return false; // Fermé aujourd'hui
+    }
     
     // Service midi : commande "maintenant" possible de 10h à 14h
     if (currentHour >= (CONFIG.openingHours.midi.start - CONFIG.openingHours.preorderBuffer) && 
@@ -3106,12 +3113,29 @@ function openDeliveryTimeModal() {
     console.log('Opening delivery time modal');
     
     const canNow = canOrderNow();
-    console.log('canOrderNow:', canNow);
+    const now = new Date();
+    const currentDay = now.getDay();
+    const isClosed = CONFIG.openingHours.closedDays && CONFIG.openingHours.closedDays.includes(currentDay);
+    
+    console.log('canOrderNow:', canNow, 'currentDay:', currentDay, 'isClosed:', isClosed);
     
     // Afficher/cacher le message de fermeture
     const closedWarning = document.getElementById('closedWarning');
     if (closedWarning) {
-        closedWarning.style.display = canNow ? 'none' : 'block';
+        if (!canNow) {
+            closedWarning.style.display = 'block';
+            // Personnaliser le message selon la situation
+            const warningText = closedWarning.querySelector('p:last-child');
+            if (warningText) {
+                if (isClosed) {
+                    warningText.innerHTML = 'Nous sommes fermés le lundi.<br>Vous pouvez programmer votre commande pour un autre jour.';
+                } else {
+                    warningText.innerHTML = 'Heures d\'ouverture des commandes : 10h-14h et 17h-21h<br>Vous pouvez programmer votre commande pour plus tard.';
+                }
+            }
+        } else {
+            closedWarning.style.display = 'none';
+        }
     }
     
     // Références aux radios
@@ -3153,17 +3177,21 @@ function openDeliveryTimeModal() {
         console.log('Scheduled section hidden');
     }
     
-    // Initialiser la date à aujourd'hui
+    // Initialiser la date à aujourd'hui (ou demain si fermé aujourd'hui)
     const dateInput = document.getElementById('globalScheduledDate');
     if (dateInput) {
+        const dateToSet = isClosed ? new Date(now.getTime() + 24*60*60*1000) : now; // Demain si fermé
+        const year = dateToSet.getFullYear();
+        const month = String(dateToSet.getMonth() + 1).padStart(2, '0');
+        const day = String(dateToSet.getDate()).padStart(2, '0');
+        const dateStr = `${year}-${month}-${day}`;
+        
         const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        const todayStr = `${year}-${month}-${day}`;
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(today.getDate()).padStart(2, '0')}`;
+        
         dateInput.setAttribute('min', todayStr);
-        dateInput.value = todayStr;
-        console.log('Date initialized to:', todayStr);
+        dateInput.value = dateStr;
+        console.log('Date initialized to:', dateStr);
     }
     
     const hourInput = document.getElementById('globalScheduledHour');
