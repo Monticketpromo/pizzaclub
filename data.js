@@ -121,7 +121,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Poulet péi', 'Olive', 'Ananas Victoria'],
         price33: 14.90,
         price40: 17.90,
-        image: 'img/SHOOT JULIEN 2021/Hawaï.png',
+        image: 'img/SHOOT JULIEN 2021/Hawaii.png',
         badge: 'Halal',
         isSpicy: false,
         isPremium: false
@@ -144,7 +144,7 @@ const PIZZAS_DATA = [
         ingredients: ['Base crème', 'Fromage', 'Saucisse fumée poulet', 'Poivron', 'Oignon', 'Olive'],
         price33: 14.90,
         price40: 17.90,
-        image: 'img/SHOOT JULIEN 2021/Créole.png',
+        image: 'img/SHOOT JULIEN 2021/Creole.png',
         badge: 'Halal',
         isSpicy: false,
         isPremium: false
@@ -167,7 +167,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Champignon', 'Poulet péi', 'Mozzarella', 'Olive'],
         price33: 15.90,
         price40: 17.90,
-        image: 'img/SHOOT JULIEN 2021/Forestière.png',
+        image: 'img/SHOOT JULIEN 2021/Forestiere.png',
         badge: 'Halal',
         isSpicy: false,
         isPremium: false
@@ -240,7 +240,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Épaule', 'Œuf', 'Crème', 'Olive'],
         price33: 13.90,
         price40: 15.90,
-        image: 'img/SHOOT JULIEN 2021/Spéciale .png',
+        image: 'img/SHOOT JULIEN 2021/Speciale.png',
         badge: null,
         isSpicy: false,
         isPremium: false
@@ -288,7 +288,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Lardon', 'Oignon', 'Champignon frais', 'Olive'],
         price33: 14.90,
         price40: 16.90,
-        image: 'img/SHOOT JULIEN 2021/Fermiére.png',
+        image: 'img/SHOOT JULIEN 2021/Fermiere.png',
         badge: null,
         isSpicy: false,
         isPremium: false
@@ -300,7 +300,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Chorizo', 'Épaule', 'Merguez poulet', 'Champignon frais', 'Olive'],
         price33: 15.90,
         price40: 18.90,
-        image: 'img/SHOOT JULIEN 2021/Complète.png',
+        image: 'img/SHOOT JULIEN 2021/Complete.png',
         badge: null,
         isSpicy: false,
         isPremium: true
@@ -402,7 +402,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Poivron', 'Oignon', 'Champignon frais', 'Olive'],
         price33: 14.90,
         price40: 17.90,
-        image: 'img/SHOOT JULIEN 2021/Végétarienne.png',
+        image: 'img/SHOOT JULIEN 2021/Vegetarienne.png',
         badge: 'Veggie',
         isSpicy: false,
         isPremium: false
@@ -476,7 +476,7 @@ const PIZZAS_DATA = [
         ingredients: ['Tomate', 'Fromage', 'Thon', 'Crevette', 'Saumon', 'Anchois', 'Olive'],
         price33: 15.90,
         price40: 18.90,
-        image: 'img/SHOOT JULIEN 2021/Océane.png',
+        image: 'img/SHOOT JULIEN 2021/Oceane.png',
         badge: 'Premium',
         isSpicy: false,
         isPremium: true
