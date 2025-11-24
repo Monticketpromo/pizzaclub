@@ -13,25 +13,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       
-    - name: FTP Deploy
-      uses: SamKirkland/FTP-Deploy-Action@v4.3.4
-      with:
-        server: ${{ secrets.FTP_SERVER }}
-        username: ${{ secrets.FTP_USERNAME }}
-        password: ${{ secrets.FTP_PASSWORD }}
-        protocol: ftp
-        port: 21
-        server-dir: ./public_html/
-        exclude: |
-          **/.git*
-          **/.git*/**
-          **/node_modules/**
-          **/.github/**
-          **/README.md
-          **/GUIDE_EMAILJS.md
-          **/CONFIG_EMAILJS_SIMPLE.md
-          **/FORMULES_UPDATE.md
-          **/INDEX_FICHIERS.md
-          **/LISTE_PIZZAS.md
-          **/TARIFS_REUNION.md
-          **/SETUP_WHATSAPP.md
+    - name: Install lftp
+      run: sudo apt-get update && sudo apt-get install -y lftp
+      
+    - name: Deploy via FTP
+      env:
+        FTP_SERVER: ${{ secrets.FTP_SERVER }}
+        FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+        FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+      run: |
+        lftp -e "
+        set ftp:ssl-allow no;
+        open -u $FTP_USERNAME,$FTP_PASSWORD $FTP_SERVER;
+        mirror -Rev --exclude .git/ --exclude .github/ --exclude '*.md' . ./public_html;
+        bye
+        "
+
