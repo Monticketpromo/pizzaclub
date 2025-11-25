@@ -706,7 +706,7 @@ const DESSERTS_DATA = [
         name: 'Crème Brûlée',
         description: 'Crème brûlée maison',
         price: 3.90,
-        image: 'img/CREME BRULEE.jpeg',
+        image: 'img/CREME_BRULEE.jpeg',
         category: 'desserts'
     },
     {
@@ -722,7 +722,7 @@ const DESSERTS_DATA = [
         name: 'Tiramisu',
         description: 'Tiramisu maison',
         price: 3.90,
-        image: 'img/TIRAMISU CHOCO SPECULOS.jpg',
+        image: 'img/TIRAMISU_CHOCO_SPECULOS.jpg',
         category: 'desserts'
     },
     {
@@ -730,7 +730,7 @@ const DESSERTS_DATA = [
         name: 'Mousse au Chocolat',
         description: 'Mousse au chocolat maison',
         price: 3.90,
-        image: 'img/MOUSSE CHOCOLAT.jpg',
+        image: 'img/MOUSSE_CHOCOLAT.jpg',
         category: 'desserts'
     }
 ];
