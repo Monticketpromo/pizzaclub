@@ -1672,7 +1672,7 @@ label:has(input[type="radio"]:checked) {
         z-index: 50;
         background: var(--bg-white);
         padding: 0.75rem 0.5rem;
-        padding-right: 1rem; /* Ajouter espace à droite */
+        padding-right: 0; /* Pas d'espace à droite pour couper le dernier bouton */
         margin-bottom: 1rem;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
         gap: 0.5rem;
@@ -1701,11 +1701,11 @@ label:has(input[type="radio"]:checked) {
         cursor: pointer;
     }
     
-    /* Ajouter un pseudo-élément pour créer de l'espace à la fin */
+    /* Ajouter un pseudo-élément pour créer de l'espace à la fin après scroll */
     .main-categories::after {
         content: '';
         display: block;
-        min-width: 20px; /* Plus d'espace pour voir le dernier bouton */
+        min-width: 0.5rem; /* Petit espace final une fois scrollé */
         flex-shrink: 0;
     }
     

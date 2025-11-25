@@ -4127,6 +4127,9 @@ function checkPromo2Pizzas() {
     
     console.log('Nombre de pizzas éligibles:', pizzaCount, 'hasPromo:', hasPromo);
     
+    // Compter le nombre de promos déjà dans le panier
+    const promoCount = cart.filter(item => item.type === 'promo2pizzas').reduce((sum, item) => sum + item.quantity, 0);
+    
     // Si moins de 2 pizzas et qu'une promo existe, la retirer
     if (pizzaCount < 2 && hasPromo) {
         cart = cart.filter(item => item.type !== 'promo2pizzas');
@@ -4138,12 +4141,6 @@ function checkPromo2Pizzas() {
         return;
     }
     
-    // Si on a déjà une promo dans le panier, ne rien faire (garder la promo)
-    if (hasPromo) {
-        console.log('Promo déjà présente dans le panier, aucune action');
-        return;
-    }
-    
     // Promo disponible uniquement le soir (après 18h)
     if (deliveryHour < 18) {
         console.log('Heure < 18h, pas de promo disponible');
@@ -4152,15 +4149,20 @@ function checkPromo2Pizzas() {
     
     console.log('Heure >= 18h, promo du soir disponible');
     
-    // Si 2 pizzas ou plus et pas encore de promo, ouvrir le modal automatiquement
-    if (pizzaCount >= 2 && !promoApplied) {
-        console.log('2 pizzas ou plus, ouverture modal promo');
+    // Calculer combien de promos sont possibles (1 promo pour chaque paire de 2 pizzas)
+    const possiblePromos = Math.floor(pizzaCount / 2);
+    
+    console.log('Promos possibles:', possiblePromos, 'Promos dans panier:', promoCount);
+    
+    // Si on peut avoir plus de promos qu'on en a actuellement, proposer
+    if (possiblePromos > promoCount) {
+        console.log('Nouvelle promo disponible ! Ouverture modal');
         // Petite temporisation pour que le panier s'affiche d'abord
         setTimeout(() => {
             openPromoModal();
         }, 500);
     } else {
-        console.log('Conditions promo non remplies - pizzaCount:', pizzaCount, 'promoApplied:', promoApplied);
+        console.log('Toutes les promos déjà utilisées');
     }
 }
 
@@ -4168,7 +4170,6 @@ function openPromoModal() {
     const modal = document.getElementById('promoModal');
     if (modal) {
         openModal(modal);
-        promoApplied = true; // Marquer comme affiché pour cette session panier
     }
 }
 
