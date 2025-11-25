@@ -24,12 +24,31 @@ let promoDiscount = 0; // Montant de la réduction
 // Fonction helper pour ouvrir un modal avec scroll en haut
 function openModal(modalElement) {
     if (!modalElement) return;
+    
     modalElement.classList.add('active');
-    // Scroll en haut du modal
+    
+    // Scroll immédiat en haut de tous les conteneurs scrollables du modal
     const modalContent = modalElement.querySelector('.modal-content');
+    const modalBody = modalElement.querySelector('.modal-body');
+    
     if (modalContent) {
-        setTimeout(() => modalContent.scrollTop = 0, 10);
+        modalContent.scrollTop = 0;
     }
+    if (modalBody) {
+        modalBody.scrollTop = 0;
+    }
+    
+    // Double vérification après un court délai pour être sûr
+    setTimeout(() => {
+        if (modalContent) modalContent.scrollTop = 0;
+        if (modalBody) modalBody.scrollTop = 0;
+    }, 0);
+    
+    // Triple vérification pour les cas récalcitrants
+    requestAnimationFrame(() => {
+        if (modalContent) modalContent.scrollTop = 0;
+        if (modalBody) modalBody.scrollTop = 0;
+    });
 }
 
 // ========================================
@@ -4234,7 +4253,7 @@ function openPromoBoissonsModal() {
         btn.disabled = false;
     });
     updateSelectedBoissonsDisplay();
-    document.getElementById('promoBoissonsModal').classList.add('active');
+    openModal(document.getElementById('promoBoissonsModal'));
 }
 
 function closePromoBoissonsModal() {
@@ -4737,7 +4756,7 @@ function cancelDeliveryChoice() {
     document.getElementById('deliveryConfirmModal').classList.remove('active');
     
     // Réouvrir le modal de sélection d'heure
-    document.getElementById('deliveryTimeModal').classList.add('active');
+    openModal(document.getElementById('deliveryTimeModal'));
 }
 
 function cancelDeliveryTime() {
@@ -4934,7 +4953,7 @@ function openMarmailleModal() {
         input.addEventListener('change', updateMarmaillePrice);
     });
 
-    document.getElementById('marmailleModal').classList.add('active');
+    openModal(document.getElementById('marmailleModal'));
 }
 
 function closeMarmailleModal() {
