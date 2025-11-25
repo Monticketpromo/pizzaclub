@@ -1928,6 +1928,26 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <!-- Config & Scripts -->
+    <script>
+        // Adapter le logo selon le thème (clair/sombre)
+        function updateLogo() {
+            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+            const logo = document.querySelector('.nav-logo img');
+            if (logo) {
+                logo.src = isDark ? 'img/New logo blanc 2022.png' : 'img/New logo noir 2022.png';
+            }
+        }
+        
+        // Écouter les changements de thème
+        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateLogo);
+        
+        // Appliquer au chargement
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', updateLogo);
+        } else {
+            updateLogo();
+        }
+    </script>
     <script src="config.js?v=20251125"></script>
     <script src="data.js?v=20251125"></script>
     <script src="emailjs-config.js?v=20251125"></script>
