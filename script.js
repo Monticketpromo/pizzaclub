@@ -669,31 +669,73 @@ function calculateItemPrice(basePrice, customization, quantity = 1, pizza = null
     if (!customization) return basePrice * quantity;
 
     let price = basePrice;
+    
+    // Vérifier si c'est une formule midi en cours de personnalisation
+    const isFormuleMidi = window.pendingFormuleMidi && !window.pendingFormuleMidi.boissonChosen;
 
     // Gérer le prix selon la taille (33cm par défaut, 40cm si sélectionné)
-    if (customization.size === 'grande' && pizza && pizza.price40) {
-        // Utiliser le prix spécifique 40cm de la pizza
-        price = pizza.price40;
-    } else if (customization.size === 'petite' && pizza && pizza.price26) {
-        // Pour les pizzas qui ont un prix 26cm (Marmaille)
-        price = pizza.price26;
+    if (!isFormuleMidi) {
+        if (customization.size === 'grande' && pizza && pizza.price40) {
+            // Utiliser le prix spécifique 40cm de la pizza
+            price = pizza.price40;
+        } else if (customization.size === 'petite' && pizza && pizza.price26) {
+            // Pour les pizzas qui ont un prix 26cm (Marmaille)
+            price = pizza.price26;
+        }
     }
+    // Pour formule midi, garder le prix de base (26cm inclus)
 
     // Ajouter le supplément pour base crème
     if (customization.base === 'creme') {
-        if (customization.size === 'grande') {
+        if (isFormuleMidi) {
+            price += 1.00; // +1€ pour crème en formule midi
+        } else if (customization.size === 'grande') {
             price += 1.50; // +1.50€ pour crème en 40cm
         } else if (customization.size === 'moyenne') {
             price += 1.00; // +1€ pour crème en 33cm
         }
-        // Pas de supplément pour Marmaille (26cm)
+        // Pas de supplément pour Marmaille (26cm) normale
     }
 
     // Ajouter prix des ingrédients supplémentaires
     if (customization.addedIngredients) {
         customization.addedIngredients.forEach(ingredient => {
             if (EXTRAS.toppings[ingredient]) {
-                price += EXTRAS.toppings[ingredient].price;
+                let ingredientPrice = EXTRAS.toppings[ingredient].price;
+                
+                // Tarifs spéciaux formule midi
+                if (isFormuleMidi) {
+                    // Légumes et produits de la mer (sauf crevettes/saumon) : 1€
+                    const legumes = ['champignons', 'olives', 'poivrons', 'oignons', 'tomates', 'pommesDeTerre', 'mais', 'capres', 'grosPiment', 'salade'];
+                    const poissonSimple = ['thon', 'anchois'];
+                    
+                    if (legumes.includes(ingredient) || poissonSimple.includes(ingredient)) {
+                        ingredientPrice = 1.00;
+                    }
+                    // Viandes et fromages : 1.50€
+                    else if (['chorizo', 'jambon', 'merguez', 'poulet', 'pouletFume', 'sarcivePoulet', 'saucisseFumee', 'boeuf', 'lardons', 
+                             'fromage', 'mozzarella', 'chevre', 'emmental', 'roquefort', 'raclette', 'reblochon', 'cheddar'].includes(ingredient)) {
+                        ingredientPrice = 1.50;
+                    }
+                    // Crevettes et saumon : 1.50€ (au lieu de 2.50€/3€)
+                    else if (['crevettes', 'saumon'].includes(ingredient)) {
+                        ingredientPrice = 1.50;
+                    }
+                    // Œuf : 1€
+                    else if (ingredient === 'oeuf') {
+                        ingredientPrice = 1.00;
+                    }
+                    // Miel : 0.50€
+                    else if (ingredient === 'miel') {
+                        ingredientPrice = 0.50;
+                    }
+                    // Maxi garniture : 2€ au lieu de 3€
+                    else if (ingredient === 'maxiGarniture') {
+                        ingredientPrice = 2.00;
+                    }
+                }
+                
+                price += ingredientPrice;
             }
         });
     }
@@ -1121,16 +1163,26 @@ function openCustomizeModal(pizzaId) {
 
     title.textContent = `Personnaliser ${pizza.name}`;
 
-    // Gérer l'affichage de l'option 26cm (uniquement pour Marmaille)
+    // Vérifier si c'est une formule midi
+    const isFormuleMidi = window.pendingFormuleMidi && !window.pendingFormuleMidi.boissonChosen;
+    
+    // Gérer l'affichage de l'option taille
+    const sizeSection = document.querySelector('.customize-section:has(input[name="size"])');
     const sizePetiteOption = document.getElementById('size-petite-option');
-    if (pizza.name.toLowerCase().includes('marmaille') || pizza.badge === 'MARMAILLE') {
+    
+    if (isFormuleMidi) {
+        // Pour formule midi : masquer toute la section taille (toujours 26cm)
+        if (sizeSection) sizeSection.style.display = 'none';
+        const petiteInput = sizePetiteOption?.querySelector('input');
+        if (petiteInput) petiteInput.checked = true;
+    } else if (pizza.name.toLowerCase().includes('marmaille') || pizza.badge === 'MARMAILLE') {
+        if (sizeSection) sizeSection.style.display = 'block';
         sizePetiteOption.style.display = 'flex';
-        // Sélectionner 26cm par défaut pour Marmaille
         const petiteInput = sizePetiteOption.querySelector('input');
         if (petiteInput) petiteInput.checked = true;
     } else {
+        if (sizeSection) sizeSection.style.display = 'block';
         sizePetiteOption.style.display = 'none';
-        // Sélectionner 33cm par défaut pour les autres pizzas
         const moyenneInput = document.querySelector('input[name="size"][value="moyenne"]');
         if (moyenneInput) moyenneInput.checked = true;
     }
