@@ -1669,7 +1669,7 @@ label:has(input[type="radio"]:checked) {
     .main-categories {
         position: sticky;
         top: 80px;
-        z-index: 100;
+        z-index: 50;
         background: var(--bg-white);
         padding: 0.75rem 0.5rem;
         padding-right: 1rem; /* Ajouter espace à droite */
@@ -1684,6 +1684,7 @@ label:has(input[type="radio"]:checked) {
         scrollbar-width: none; /* Firefox */
         width: 100%;
         display: flex;
+        pointer-events: auto; /* Permettre les interactions */
     }
     
     .main-categories::-webkit-scrollbar {
@@ -1696,13 +1697,15 @@ label:has(input[type="radio"]:checked) {
         padding: 0.75rem 1rem;
         min-width: fit-content;
         white-space: nowrap;
+        pointer-events: auto; /* Permettre les clics sur les boutons */
+        cursor: pointer;
     }
     
     /* Ajouter un pseudo-élément pour créer de l'espace à la fin */
     .main-categories::after {
         content: '';
         display: block;
-        min-width: 1rem;
+        min-width: 20px; /* Plus d'espace pour voir le dernier bouton */
         flex-shrink: 0;
     }
     

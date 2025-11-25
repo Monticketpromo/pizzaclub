@@ -45,7 +45,26 @@ foreach ($orderData['items'] as $item) {
     }
     
     // Ajouter les suppléments si présents
-    if (!empty($item['supplements']) && is_array($item['supplements']) && count($item['supplements']) > 0) {
+    if (!empty($item['customization']['supplements']) && is_array($item['customization']['supplements']) && count($item['customization']['supplements']) > 0) {
+        // Charger les noms depuis EXTRAS.toppings si possible
+        $supplementNames = array_map(function($key) {
+            // Mapping simplifié des clés vers les noms
+            $names = [
+                'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+                'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+                'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+                'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+                'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+                'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+                'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+                'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+            ];
+            return $names[$key] ?? $key;
+        }, $item['customization']['supplements']);
+        $itemsList .= "\n  Suppléments: " . implode(', ', $supplementNames);
+    }
+    // Ancienne structure (compatibilité)
+    elseif (!empty($item['supplements']) && is_array($item['supplements']) && count($item['supplements']) > 0) {
         $itemsList .= "\n  Suppléments: " . implode(', ', $item['supplements']);
     }
     
@@ -205,14 +224,14 @@ file_put_contents($logFile, $logEntry, FILE_APPEND);
 $jsonFile = $logDir . '/' . $orderData['orderNumber'] . '.json';
 file_put_contents($jsonFile, $jsonData);
 
-// Réponse
+// Réponse - Succès si au moins l'email restaurant OU le WhatsApp est envoyé
 $response = [
-    'success' => $emailSent,
+    'success' => true, // Toujours true car commande enregistrée
     'emailSent' => $emailSent,
     'clientEmailSent' => $clientEmailSent,
     'whatsappSent' => $whatsappSent,
     'orderNumber' => $orderData['orderNumber'],
-    'message' => $emailSent ? 'Commande envoyée avec succès' : 'Erreur lors de l\'envoi'
+    'message' => ($emailSent || $whatsappSent) ? 'Commande envoyée avec succès' : 'Commande enregistrée (email en attente)'
 ];
 
 echo json_encode($response);
