@@ -2118,7 +2118,6 @@ function openFormuleMidiModal() {
         pizzasList.appendChild(div);
     });
     
-    updateFormuleMidiPrice();
     modal.classList.add('active');
 }
 
