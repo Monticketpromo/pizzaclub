@@ -490,7 +490,7 @@ function createSimpleCard(item, type) {
                 <i class="fas fa-utensils"></i> Commander
            </button>`;
     } else if (isSalade) {
-        buttonHTML = `<button class="btn btn-primary btn-block" onclick="openSaladeCustomizeModal(${item.id})">
+        buttonHTML = `<button class="btn btn-primary btn-block" onclick="openSaladesCustomizeModal(${item.id})">
                 <i class="fas fa-leaf"></i> Commander
            </button>`;
     } else if (isBun) {
@@ -2779,15 +2779,15 @@ function openSaladesCustomizeModal(saladeId) {
                 </label>
                 <label class="ingredient-checkbox">
                     <input type="checkbox" name="saladeSupplement" value="poulet" onchange="updateSaladesCustomizePrice()">
-                    <span>+ Poulet <small>(+2.50€)</small></span>
+                    <span>+ Poulet <small>(+2.00€)</small></span>
                 </label>
                 <label class="ingredient-checkbox">
                     <input type="checkbox" name="saladeSupplement" value="merguez" onchange="updateSaladesCustomizePrice()">
-                    <span>+ Merguez <small>(+2.50€)</small></span>
+                    <span>+ Merguez <small>(+2.00€)</small></span>
                 </label>
                 <label class="ingredient-checkbox">
                     <input type="checkbox" name="saladeSupplement" value="chorizo" onchange="updateSaladesCustomizePrice()">
-                    <span>+ Chorizo <small>(+2.50€)</small></span>
+                    <span>+ Chorizo <small>(+2.00€)</small></span>
                 </label>
                 <label class="ingredient-checkbox">
                     <input type="checkbox" name="saladeSupplement" value="boeuf" onchange="updateSaladesCustomizePrice()">

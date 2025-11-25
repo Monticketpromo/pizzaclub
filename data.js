@@ -822,6 +822,8 @@ const EXTRAS = {
         raclette: { name: 'Raclette', price: 2.00 },
         reblochon: { name: 'Reblochon', price: 2.00 },
         cheddar: { name: 'Cheddar', price: 2.00 },
+        gorgonzola: { name: 'Gorgonzola', price: 2.00 },
+        parmesan: { name: 'Parmesan', price: 2.00 },
         
         // Viandes
         chorizo: { name: 'Chorizo', price: 2.00 },
