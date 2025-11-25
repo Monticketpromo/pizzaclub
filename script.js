@@ -3633,21 +3633,51 @@ async function sendOrderBySMS(orderData) {
 }
 
 function formatOrderForEmail(orderData) {
+    // Catégoriser les ingrédients pour affichage détaillé
+    const categorizeIngredient = (key) => {
+        const ingredient = EXTRAS.toppings[key];
+        if (!ingredient) return { cat: 'Autre', name: key, price: 0 };
+        
+        const legumes = ['champignons', 'olives', 'poivrons', 'oignons', 'tomates', 'pommesDeTerre', 'mais', 'grosPiment'];
+        const fromages = ['fromage', 'chevre', 'gorgonzola', 'parmesan'];
+        const viandes = ['jambon', 'poulet', 'merguez', 'chorizo', 'boeuf', 'lardons'];
+        const mer = ['thon', 'anchois', 'crevettes', 'saumon'];
+        const autres = ['oeuf', 'miel'];
+        
+        let cat = 'Autre';
+        if (legumes.includes(key)) cat = 'LÉGUME';
+        else if (fromages.includes(key)) cat = 'FROMAGE';
+        else if (viandes.includes(key)) cat = 'VIANDE';
+        else if (mer.includes(key)) cat = 'MER';
+        else if (autres.includes(key)) cat = 'AUTRE';
+        
+        return { cat, name: ingredient.name, price: ingredient.price };
+    };
+    
     // Formater chaque item avec tous les détails de personnalisation
     const items = orderData.items.map(item => {
-        let itemText = `${item.name}`;
+        let itemText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+        itemText += `📦 ${item.name}`;
         
         // PIZZAS
         if (item.type === 'pizza' && item.customization) {
             const c = item.customization;
-            itemText += ` (${c.size})`;
-            if (c.base !== 'tomate') itemText += ` - Base ${c.base}`;
+            itemText += ` - TAILLE: ${c.size.toUpperCase()}`;
+            if (c.base !== 'tomate') itemText += `\n   🍕 BASE: ${c.base.toUpperCase()}`;
+            
             if (c.ingredients) {
                 if (c.ingredients.added && c.ingredients.added.length > 0) {
-                    itemText += `\n  + Ajouts: ${c.ingredients.added.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                    itemText += `\n\n   ➕ INGRÉDIENTS AJOUTÉS:`;
+                    c.ingredients.added.forEach(id => {
+                        const ing = categorizeIngredient(id);
+                        itemText += `\n      • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                    });
                 }
                 if (c.ingredients.removed && c.ingredients.removed.length > 0) {
-                    itemText += `\n  - Retraits: ${c.ingredients.removed.join(', ')}`;
+                    itemText += `\n\n   ➖ INGRÉDIENTS RETIRÉS:`;
+                    c.ingredients.removed.forEach(name => {
+                        itemText += `\n      • ${name}`;
+                    });
                 }
             }
         }
@@ -3655,40 +3685,58 @@ function formatOrderForEmail(orderData) {
         // PÂTES
         else if (item.type === 'pate' && item.customization) {
             const c = item.customization;
-            itemText += ` (${c.size})`;
-            if (c.base && c.base !== 'classique') itemText += ` - Base ${c.base}`;
+            itemText += ` - TAILLE: ${c.size}`;
+            if (c.base && c.base !== 'classique') itemText += `\n   🍝 BASE: ${c.base.toUpperCase()}`;
+            
             if (c.supplements && c.supplements.length > 0) {
-                itemText += `\n  + Suppléments: ${c.supplements.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                itemText += `\n\n   ➕ SUPPLÉMENTS:`;
+                c.supplements.forEach(id => {
+                    const ing = categorizeIngredient(id);
+                    itemText += `\n      • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                });
             }
         }
         
         // SALADES
         else if (item.type === 'salade' && item.customization) {
             const c = item.customization;
-            if (c.base && c.base !== 'saladeverte') itemText += ` - Base ${c.base}`;
+            if (c.base && c.base !== 'saladeverte') itemText += `\n   🥗 BASE: ${c.base.toUpperCase()}`;
+            
             if (c.options && c.options.length > 0) {
-                const optionsText = c.options.map(opt => {
-                    if (opt === 'pain') return 'Pain';
-                    if (opt === 'vinaigrette-sup') return 'Vinaigrette sup.';
-                    return opt;
-                }).join(', ');
-                itemText += `\n  [${optionsText}]`;
+                itemText += `\n\n   🎯 OPTIONS:`;
+                c.options.forEach(opt => {
+                    if (opt === 'pain') itemText += `\n      • Pain (+0.50€)`;
+                    if (opt === 'vinaigrette-sup') itemText += `\n      • Vinaigrette supplémentaire (+0.50€)`;
+                });
             }
+            
             if (c.supplements && c.supplements.length > 0) {
-                itemText += `\n  + Suppléments: ${c.supplements.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                itemText += `\n\n   ➕ SUPPLÉMENTS:`;
+                c.supplements.forEach(id => {
+                    const ing = categorizeIngredient(id);
+                    itemText += `\n      • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                });
             }
         }
         
         // BUNS
         else if (item.type === 'bun' && item.customization) {
             const c = item.customization;
-            if (c.size) itemText += ` (${c.size})`;
+            if (c.size) itemText += ` - TAILLE: ${c.size}`;
+            
             if (c.ingredients) {
                 if (c.ingredients.added && c.ingredients.added.length > 0) {
-                    itemText += `\n  + Ajouts: ${c.ingredients.added.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                    itemText += `\n\n   ➕ INGRÉDIENTS AJOUTÉS:`;
+                    c.ingredients.added.forEach(id => {
+                        const ing = categorizeIngredient(id);
+                        itemText += `\n      • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                    });
                 }
                 if (c.ingredients.removed && c.ingredients.removed.length > 0) {
-                    itemText += `\n  - Retraits: ${c.ingredients.removed.join(', ')}`;
+                    itemText += `\n\n   ➖ INGRÉDIENTS RETIRÉS:`;
+                    c.ingredients.removed.forEach(name => {
+                        itemText += `\n      • ${name}`;
+                    });
                 }
             }
         }
@@ -3697,9 +3745,13 @@ function formatOrderForEmail(orderData) {
         else if (item.type === 'roll' && item.customization) {
             const c = item.customization;
             if (c.isBox) {
-                itemText = `Box ${item.name}`;
+                itemText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                itemText += `📦 Box ${item.name}`;
                 if (c.rolls) {
-                    itemText += `\n  Rolls: ${c.rolls.map(r => `${r.name} x${r.quantity}`).join(', ')}`;
+                    itemText += `\n\n   🌯 COMPOSITION:`;
+                    c.rolls.forEach(r => {
+                        itemText += `\n      • ${r.name} x${r.quantity}`;
+                    });
                 }
             }
         }
@@ -3708,71 +3760,107 @@ function formatOrderForEmail(orderData) {
         else if (item.type === 'formule') {
             if (item.formuleType === 'midi' && item.customization) {
                 const c = item.customization;
-                itemText = `Formule Midi - ${c.pizza}`;
+                itemText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                itemText += `🍕 FORMULE MIDI\n\n`;
+                itemText += `   PIZZA: ${c.pizza}`;
+                
                 if (c.pizzaCustomization) {
                     const pc = c.pizzaCustomization;
-                    itemText += ` (${pc.size})`;
-                    if (pc.base !== 'tomate') itemText += ` - Base ${pc.base}`;
+                    itemText += ` - TAILLE: ${pc.size.toUpperCase()}`;
+                    if (pc.base !== 'tomate') itemText += `\n      BASE: ${pc.base.toUpperCase()}`;
+                    
                     if (pc.ingredients) {
                         if (pc.ingredients.added && pc.ingredients.added.length > 0) {
-                            itemText += `\n  + Ajouts: ${pc.ingredients.added.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                            itemText += `\n\n      ➕ AJOUTS:`;
+                            pc.ingredients.added.forEach(id => {
+                                const ing = categorizeIngredient(id);
+                                itemText += `\n         • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                            });
                         }
                         if (pc.ingredients.removed && pc.ingredients.removed.length > 0) {
-                            itemText += `\n  - Retraits: ${pc.ingredients.removed.join(', ')}`;
+                            itemText += `\n\n      ➖ RETRAITS:`;
+                            pc.ingredients.removed.forEach(name => {
+                                itemText += `\n         • ${name}`;
+                            });
                         }
                     }
                 }
-                itemText += `\n  Boisson: ${c.boisson} 33cl`;
+                itemText += `\n\n   🥤 BOISSON: ${c.boisson} 33cl`;
+                
             } else if (item.formuleType === 'patesSalade' && item.customization) {
                 const c = item.customization;
-                itemText = `Formule Pâtes/Salade`;
-                itemText += `\n  ${c.mainItem.type === 'pate' ? 'Pâte' : 'Salade'}: ${c.mainItem.name}`;
+                itemText = `━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n`;
+                itemText += `🍽️ FORMULE PÂTES/SALADE\n\n`;
+                itemText += `   ${c.mainItem.type === 'pate' ? '🍝 PÂTE' : '🥗 SALADE'}: ${c.mainItem.name}`;
+                
                 if (c.mainItem.customization) {
                     const mc = c.mainItem.customization;
-                    if (mc.size) itemText += ` (${mc.size})`;
+                    if (mc.size) itemText += ` - TAILLE: ${mc.size}`;
                     if (mc.base && mc.base !== 'classique' && mc.base !== 'saladeverte') {
-                        itemText += ` - Base ${mc.base}`;
+                        itemText += `\n      BASE: ${mc.base.toUpperCase()}`;
                     }
+                    
+                    if (mc.options && mc.options.length > 0) {
+                        itemText += `\n\n      🎯 OPTIONS:`;
+                        mc.options.forEach(opt => {
+                            if (opt === 'pain') itemText += `\n         • Pain (+0.50€)`;
+                            if (opt === 'vinaigrette-sup') itemText += `\n         • Vinaigrette sup. (+0.50€)`;
+                        });
+                    }
+                    
                     if (mc.supplements && mc.supplements.length > 0) {
-                        itemText += `\n    + Suppléments: ${mc.supplements.map(id => EXTRAS.toppings[id]?.name || id).join(', ')}`;
+                        itemText += `\n\n      ➕ SUPPLÉMENTS:`;
+                        mc.supplements.forEach(id => {
+                            const ing = categorizeIngredient(id);
+                            itemText += `\n         • [${ing.cat}] ${ing.name} (+${ing.price.toFixed(2)}€)`;
+                        });
                     }
                 }
-                itemText += `\n  Boisson: ${c.boisson}`;
-                itemText += `\n  Dessert: ${c.dessert}`;
+                itemText += `\n\n   🥤 BOISSON: ${c.boisson}`;
+                itemText += `\n   🍰 DESSERT: ${c.dessert}`;
             }
         }
         
         // Ajouter quantité et prix
-        itemText += `\n  x${item.quantity} - ${item.basePrice.toFixed(2)}€ = ${item.totalPrice.toFixed(2)}€`;
+        itemText += `\n\n   💰 QUANTITÉ: x${item.quantity}`;
+        itemText += `\n   💰 PRIX UNITAIRE: ${item.basePrice.toFixed(2)}€`;
+        itemText += `\n   💰 TOTAL: ${item.totalPrice.toFixed(2)}€`;
         
         return itemText;
     }).join('\n\n');
 
     const text = `
-NOUVELLE COMMANDE - ${orderData.orderNumber}
+╔════════════════════════════════════════════╗
+║       NOUVELLE COMMANDE - ${orderData.orderNumber}       ║
+╚════════════════════════════════════════════╝
 
-CLIENT:
-${orderData.customer.firstName} ${orderData.customer.lastName}
-Tel: ${orderData.customer.phone}
-Email: ${orderData.customer.email}
+👤 CLIENT:
+   ${orderData.customer.firstName} ${orderData.customer.lastName}
+   📞 ${orderData.customer.phone}
+   📧 ${orderData.customer.email}
 
-MODE: ${orderData.customer.deliveryMode === 'livraison' ? 'LIVRAISON' : 'À EMPORTER'}
-${orderData.customer.deliveryMode === 'livraison' ? `
-Adresse:
-${orderData.customer.address}
-${orderData.customer.postalCode} ${orderData.customer.city}
+${orderData.customer.deliveryMode === 'livraison' ? '🛵' : '🏃'} MODE: ${orderData.customer.deliveryMode === 'livraison' ? 'LIVRAISON' : 'À EMPORTER'}
+${orderData.customer.deliveryMode === 'livraison' ? `   📍 ${orderData.customer.address}
+   ${orderData.customer.postalCode} ${orderData.customer.city}
 ` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-COMMANDE:
+📋 COMMANDE DÉTAILLÉE:
+
 ${items}
 
-Sous-total: ${orderData.subtotal.toFixed(2)}€
-Frais de livraison: ${orderData.deliveryFee.toFixed(2)}€
-${orderData.discount > 0 ? `Réduction: -${orderData.discount.toFixed(2)}€\n` : ''}TOTAL: ${orderData.total.toFixed(2)}€
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-Temps estimé: ${orderData.estimatedTime}
+💵 RÉCAPITULATIF:
+   Sous-total: ${orderData.subtotal.toFixed(2)}€
+   Frais de livraison: ${orderData.deliveryFee.toFixed(2)}€
+${orderData.discount > 0 ? `   Réduction: -${orderData.discount.toFixed(2)}€\n` : ''}   ═══════════════════════════════
+   TOTAL À ENCAISSER: ${orderData.total.toFixed(2)}€
 
-${orderData.customer.comments ? `Commentaire: ${orderData.customer.comments}` : ''}
+⏱️ Temps estimé: ${orderData.estimatedTime}
+
+${orderData.customer.comments ? `💬 COMMENTAIRE CLIENT:\n   ${orderData.customer.comments}\n` : ''}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
     `.trim();
 
     return { items, text };
