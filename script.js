@@ -128,18 +128,26 @@ function setupMobileCategoriesSticky() {
 
 // Fonction pour bloquer le scroll du body quand un modal est ouvert
 function setupModalScrollLock() {
+    let scrollPosition = 0;
+    
     const observer = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
             if (mutation.attributeName === 'class') {
                 const target = mutation.target;
                 if (target.classList.contains('modal')) {
                     if (target.classList.contains('active')) {
+                        // Modal s'ouvre : sauvegarder la position de scroll
+                        scrollPosition = window.pageYOffset || document.documentElement.scrollTop;
+                        document.body.style.top = `-${scrollPosition}px`;
                         document.body.classList.add('modal-open');
                     } else {
                         // Vérifier s'il y a d'autres modals actifs
                         const activeModals = document.querySelectorAll('.modal.active');
                         if (activeModals.length === 0) {
+                            // Modal se ferme : restaurer la position de scroll
                             document.body.classList.remove('modal-open');
+                            document.body.style.top = '';
+                            window.scrollTo(0, scrollPosition);
                         }
                     }
                 }
