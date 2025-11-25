@@ -459,42 +459,43 @@
             <div class="cart-items" id="cartItems">
                 <!-- Les articles du panier seront ajoutés ici dynamiquement -->
             </div>
-        </div>
 
-        <div class="cart-footer" id="cartFooter">
-            <!-- Code Promo -->
-            <div class="promo-code-section">
-                <div class="promo-input-wrapper">
-                    <input type="text" id="promoCodeInput" placeholder="Code promo" maxlength="20">
-                    <button class="btn btn-secondary btn-sm" id="btnApplyPromo" onclick="applyPromoCode()">
-                        <i class="fas fa-tag"></i> Appliquer
-                    </button>
+            <!-- Footer du panier (code promo + résumé + bouton) maintenant dans le scroll -->
+            <div class="cart-footer" id="cartFooter">
+                <!-- Code Promo -->
+                <div class="promo-code-section">
+                    <div class="promo-input-wrapper">
+                        <input type="text" id="promoCodeInput" placeholder="Code promo" maxlength="20">
+                        <button class="btn btn-secondary btn-sm" id="btnApplyPromo" onclick="applyPromoCode()">
+                            <i class="fas fa-tag"></i> Appliquer
+                        </button>
+                    </div>
+                    <div class="promo-message" id="promoMessage"></div>
                 </div>
-                <div class="promo-message" id="promoMessage"></div>
+
+                <div class="cart-summary">
+                    <div class="summary-row">
+                        <span>Sous-total</span>
+                        <span id="cartSubtotal">0.00€</span>
+                    </div>
+                    <div class="summary-row">
+                        <span>Frais de livraison</span>
+                        <span id="cartDeliveryFee">0.00€</span>
+                    </div>
+                    <div class="summary-row promo-discount" id="promoDiscountRow" style="display: none;">
+                        <span><i class="fas fa-tag"></i> Code promo (LIV10)</span>
+                        <span id="promoDiscountAmount" style="color: #28a745;">-2.00€</span>
+                    </div>
+                    <div class="summary-row total">
+                        <span>Total</span>
+                        <span id="cartTotal">0.00€</span>
+                    </div>
+                </div>
+
+                <button class="btn btn-primary btn-block" id="btnCheckout" onclick="openCheckoutModal()">
+                    <i class="fas fa-check"></i> Valider la commande
+                </button>
             </div>
-
-            <div class="cart-summary">
-                <div class="summary-row">
-                    <span>Sous-total</span>
-                    <span id="cartSubtotal">0.00€</span>
-                </div>
-                <div class="summary-row">
-                    <span>Frais de livraison</span>
-                    <span id="cartDeliveryFee">0.00€</span>
-                </div>
-                <div class="summary-row promo-discount" id="promoDiscountRow" style="display: none;">
-                    <span><i class="fas fa-tag"></i> Code promo (LIV10)</span>
-                    <span id="promoDiscountAmount" style="color: #28a745;">-2.00€</span>
-                </div>
-                <div class="summary-row total">
-                    <span>Total</span>
-                    <span id="cartTotal">0.00€</span>
-                </div>
-            </div>
-
-            <button class="btn btn-primary btn-block" id="btnCheckout" onclick="openCheckoutModal()">
-                <i class="fas fa-check"></i> Valider la commande
-            </button>
         </div>
     </div>
 
