@@ -1276,6 +1276,11 @@ function openCustomizeModal(pizzaId) {
 function closeCustomizeModal() {
     document.getElementById('customizeModal').classList.remove('active');
     currentPizza = null;
+    
+    // Si c'était une pâte standalone, nettoyer
+    if (window.pendingMenuPatesSalade?.standalone) {
+        window.pendingMenuPatesSalade = null;
+    }
 }
 
 function updateCustomizePrice() {
@@ -2469,12 +2474,21 @@ function openPatesCustomizeModal(pateId) {
             <h4>Suppléments (optionnel)</h4>
             <div id="patesSupplementsContainer" class="ingredients-add"></div>
         </div>
-        
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="cancelPatesCustomization()">Annuler</button>
-            <button class="btn btn-primary" onclick="confirmPatesCustomization()">Confirmer</button>
-        </div>
     `;
+    
+    // Changer le bouton du footer existant pour appeler confirmPatesCustomization
+    const modalFooter = modal.querySelector('.modal-footer');
+    if (modalFooter) {
+        modalFooter.innerHTML = `
+            <div class="modal-price">
+                <span>Prix total:</span>
+                <span id="customizePrice">0.00€</span>
+            </div>
+            <button class="btn btn-primary" onclick="confirmPatesCustomization()">
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        `;
+    }
     
     // Générer les suppléments
     generatePatesSupplementsList();
@@ -2484,8 +2498,12 @@ function openPatesCustomizeModal(pateId) {
     sizeInputs.forEach(input => {
         input.addEventListener('change', () => {
             generatePatesSupplementsList();
+            updatePatesCustomizePrice();
         });
     });
+    
+    // Mettre à jour le prix initial
+    updatePatesCustomizePrice();
     
     modal.classList.add('active');
 }
@@ -2501,12 +2519,36 @@ function generatePatesSupplementsList() {
         .filter(([key]) => !['base-creme', 'base-tomate'].includes(key))
         .map(([key, topping]) => `
             <label class="ingredient-checkbox">
-                <input type="checkbox" name="patesSupplement" value="${key}">
+                <input type="checkbox" name="patesSupplement" value="${key}" onchange="updatePatesCustomizePrice()">
                 <span>+ ${topping.name} <small>(+${supplementPrice.toFixed(2)}€)</small></span>
             </label>
         `).join('');
     
     container.innerHTML = toppingsHTML;
+}
+
+function updatePatesCustomizePrice() {
+    if (!window.pendingMenuPatesSalade) return;
+    
+    const pateId = window.pendingMenuPatesSalade.itemId;
+    const pate = PATES_DATA.find(p => p.id === pateId);
+    if (!pate) return;
+    
+    const selectedSize = document.querySelector('input[name="pateSize"]:checked')?.value || 'L';
+    const selectedSupplements = Array.from(document.querySelectorAll('input[name="patesSupplement"]:checked'));
+    
+    // Prix de base selon taille
+    let price = selectedSize === 'L' ? pate.priceL : pate.priceXL;
+    
+    // Ajouter le prix des suppléments
+    const supplementPrice = EXTRAS.patesSupplements[selectedSize].price;
+    price += selectedSupplements.length * supplementPrice;
+    
+    // Afficher le prix
+    const priceElement = document.getElementById('customizePrice');
+    if (priceElement) {
+        priceElement.textContent = `${price.toFixed(2)}€`;
+    }
 }
 
 function confirmPatesCustomization() {
@@ -2630,6 +2672,15 @@ function openSaladesCustomizeModal(saladeId) {
         return;
     }
     
+    // Si pas de pendingMenuPatesSalade, c'est une salade standalone
+    if (!window.pendingMenuPatesSalade) {
+        window.pendingMenuPatesSalade = {
+            type: 'salade',
+            itemId: saladeId,
+            standalone: true
+        };
+    }
+    
     const modal = document.getElementById('customizeModal');
     const modalTitle = document.getElementById('customizeModalTitle');
     const customizeContent = document.getElementById('customizeModalBody');
@@ -2658,25 +2709,66 @@ function openSaladesCustomizeModal(saladeId) {
                     .filter(([key]) => !['base-creme', 'base-tomate'].includes(key))
                     .map(([key, topping]) => `
                         <label class="ingredient-checkbox">
-                            <input type="checkbox" name="saladeSupplement" value="${key}">
+                            <input type="checkbox" name="saladeSupplement" value="${key}" onchange="updateSaladesCustomizePrice()">
                             <span>+ ${topping.name} <small>(+${EXTRAS.patesSupplements.L.price.toFixed(2)}€)</small></span>
                         </label>
                     `).join('')}
             </div>
         </div>
-        
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="cancelSaladesCustomization()">Annuler</button>
-            <button class="btn btn-primary" onclick="confirmSaladesCustomization()">Confirmer</button>
-        </div>
     `;
     
+    // Changer le bouton du footer existant
+    const modalFooter = modal.querySelector('.modal-footer');
+    if (modalFooter) {
+        modalFooter.innerHTML = `
+            <div class="modal-price">
+                <span>Prix total:</span>
+                <span id="customizePrice">0.00€</span>
+            </div>
+            <button class="btn btn-primary" onclick="confirmSaladesCustomization()">
+                <i class="fas fa-check"></i> Confirmer
+            </button>
+        `;
+    }
+    
+    // Mettre à jour le prix initial
+    updateSaladesCustomizePrice();
+    
     modal.classList.add('active');
+}
+
+function updateSaladesCustomizePrice() {
+    if (!window.pendingMenuPatesSalade) return;
+    
+    const saladeId = window.pendingMenuPatesSalade.itemId;
+    const salade = SALADES_DATA.find(s => s.id === saladeId);
+    if (!salade) return;
+    
+    const selectedSupplements = Array.from(document.querySelectorAll('input[name="saladeSupplement"]:checked'));
+    
+    // Prix de base
+    let price = salade.price;
+    
+    // Ajouter le prix des suppléments
+    const supplementPrice = EXTRAS.patesSupplements.L.price;
+    price += selectedSupplements.length * supplementPrice;
+    
+    // Afficher le prix
+    const priceElement = document.getElementById('customizePrice');
+    if (priceElement) {
+        priceElement.textContent = `${price.toFixed(2)}€`;
+    }
 }
 
 function confirmSaladesCustomization() {
     const saladeId = window.pendingMenuPatesSalade.itemId;
     const salade = SALADES_DATA.find(s => s.id === saladeId);
+    
+    if (!salade) {
+        console.error('Salade non trouvée:', saladeId);
+        showNotification('Erreur: Salade non trouvée', 'error');
+        return;
+    }
     
     const selectedBase = document.querySelector('input[name="saladeBase"]:checked')?.value || 'saladeverte';
     const selectedSupplements = Array.from(document.querySelectorAll('input[name="saladeSupplement"]:checked'))
@@ -2699,16 +2791,83 @@ function confirmSaladesCustomization() {
     // Fermer le modal de personnalisation
     document.getElementById('customizeModal').classList.remove('active');
     
-    // Rouvrir le modal menu pour choisir boisson et dessert
-    openMenuPatesSaladeModalForBoissonDessert();
+    // Si c'est une salade standalone, ajouter direct au panier
+    if (window.pendingMenuPatesSalade.standalone) {
+        addStandaloneSaladeToCart();
+    } else {
+        // Sinon, rouvrir le modal menu pour choisir boisson et dessert
+        openMenuPatesSaladeModalForBoissonDessert();
+    }
 }
 
 function cancelSaladesCustomization() {
     document.getElementById('customizeModal').classList.remove('active');
+    
+    // Si c'est standalone, juste nettoyer
+    if (window.pendingMenuPatesSalade?.standalone) {
+        window.pendingMenuPatesSalade = null;
+        return;
+    }
+    
+    // Sinon, remettre le modal menu
     window.pendingMenuPatesSalade = null;
     
     // Rouvrir le modal menu
     openMenuPatesSaladeModal();
+}
+
+function addStandaloneSaladeToCart() {
+    const pending = window.pendingMenuPatesSalade;
+    if (!pending) {
+        console.error('Aucune salade en attente');
+        return;
+    }
+    
+    const salade = SALADES_DATA.find(s => s.id === pending.itemId);
+    if (!salade) {
+        console.error('Salade non trouvée:', pending.itemId);
+        return;
+    }
+    
+    // Si c'est le premier ajout, s'assurer que l'heure est définie
+    if (cart.length === 0 && !deliveryTimeSet) {
+        console.log('Premier ajout détecté - ouverture modal heure avant ajout au panier');
+        pendingCartAction = () => addStandaloneSaladeToCart();
+        openDeliveryTimeModal();
+        return;
+    }
+    
+    const customization = pending.customization;
+    const baseLabel = customization.base !== 'saladeverte' ? ` (${customization.base})` : '';
+    const supplementNames = customization.supplements.length > 0
+        ? customization.supplements.map(key => EXTRAS.toppings[key]?.name).join(', ')
+        : '';
+    
+    const cartItem = {
+        id: Date.now(),
+        type: 'salade',
+        name: salade.name,
+        basePrice: pending.calculatedPrice,
+        quantity: 1,
+        totalPrice: pending.calculatedPrice,
+        customization: {
+            base: customization.base,
+            supplements: customization.supplements
+        }
+    };
+    
+    cart.push(cartItem);
+    saveCartToStorage();
+    updateCartUI();
+    
+    const suppText = supplementNames ? ` + ${supplementNames}` : '';
+    showNotification(`${salade.name}${baseLabel}${suppText} ajouté au panier`);
+    
+    // Nettoyer
+    window.pendingMenuPatesSalade = null;
+    
+    // Ouvrir le panier
+    setTimeout(() => openCart(), 100);
 }
 
 // === Modal pour choisir Boisson et Dessert ===
