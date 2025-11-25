@@ -1248,7 +1248,15 @@ function updateCustomizePrice() {
 }
 
 function addCustomizedToCart() {
-    if (!currentPizza) return;
+    console.log('🔴 addCustomizedToCart appelé');
+    console.log('🔴 currentPizza:', currentPizza);
+    console.log('🔴 pendingFormuleMidi:', window.pendingFormuleMidi);
+    
+    if (!currentPizza) {
+        console.error('❌ currentPizza est null !');
+        showNotification('Erreur: Pizza non trouvée', 'error');
+        return;
+    }
 
     console.log('addCustomizedToCart - cart.length:', cart.length, 'deliveryTimeSet:', deliveryTimeSet);
 
@@ -1283,19 +1291,27 @@ function addCustomizedToCart() {
 
     // Vérifier si c'est dans le cadre d'une formule midi
     if (window.pendingFormuleMidi) {
+        console.log('🟢 Détection formule midi');
         const formuleInfo = window.pendingFormuleMidi;
+        console.log('🟢 formuleInfo:', formuleInfo);
+        console.log('🟢 boissonChosen:', formuleInfo.boissonChosen);
         
         // Si la boisson n'est pas encore choisie, on stocke la personnalisation et on rouvre le modal formule
         if (!formuleInfo.boissonChosen) {
+            console.log('🟢 Boisson pas encore choisie - stockage customization');
             // Stocker la personnalisation de la pizza
             window.pendingFormuleMidi.pizzaCustomization = customization;
             window.pendingFormuleMidi.quantity = quantity;
+            
+            console.log('🟢 Customization stockée:', window.pendingFormuleMidi);
             
             // Fermer le modal de personnalisation
             closeCustomizeModal();
             
             // Rouvrir le modal formule pour choisir la boisson
+            console.log('🟢 Attente 300ms avant ouverture modal boisson');
             setTimeout(() => {
+                console.log('🟢 Appel openFormuleMidiModalForBoisson');
                 openFormuleMidiModalForBoisson();
             }, 300);
             return;
