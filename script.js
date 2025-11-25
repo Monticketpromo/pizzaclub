@@ -2159,7 +2159,14 @@ function addCustomizedRollsToCart() {
     // Vérifier qu'il y a bien 2 ingrédients
     const checkedIngredients = document.querySelectorAll('#rollsIngredients input[type="checkbox"]:checked');
     if (checkedIngredients.length !== 2) {
-        showNotification('Veuillez sélectionner exactement 2 ingrédients', 'error');
+        showNotification('⚠️ Vous devez sélectionner EXACTEMENT 2 ingrédients pour votre roll', 'error');
+        // Faire clignoter le compteur
+        const counter = document.getElementById('rollsIngredientsCount');
+        counter.style.color = 'red';
+        counter.style.fontSize = '1.3rem';
+        setTimeout(() => {
+            counter.style.fontSize = '1.1rem';
+        }, 500);
         return;
     }
 

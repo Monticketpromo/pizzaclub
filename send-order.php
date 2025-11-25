@@ -71,6 +71,17 @@ foreach ($orderData['items'] as $item) {
         $itemsList .= " - Taille: " . $item['size'];
     }
     
+    // Ajouter les ingrédients des rolls (obligatoire : 2 ingrédients)
+    if (!empty($item['customization']['ingredients']) && is_array($item['customization']['ingredients'])) {
+        $itemsList .= "\n  Ingrédients: " . implode(', ', $item['customization']['ingredients']);
+    }
+    
+    // Ajouter la base (crème/tomate) pour rolls, buns, etc.
+    if (!empty($item['customization']['base'])) {
+        $baseLabel = $item['customization']['base'] === 'creme' ? 'Crème' : 'Tomate';
+        $itemsList .= "\n  Base: " . $baseLabel;
+    }
+    
     // Ajouter les suppléments si présents
     if (!empty($item['customization']['supplements']) && is_array($item['customization']['supplements']) && count($item['customization']['supplements']) > 0) {
         // Charger les noms depuis EXTRAS.toppings si possible

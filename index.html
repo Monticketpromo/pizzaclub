@@ -1230,6 +1230,13 @@
             </div>
 
             <div class="modal-body">
+                <!-- Avertissement ingrédients obligatoires -->
+                <div style="background: #fff3e0; border-left: 4px solid #ff9800; padding: 15px; margin-bottom: 20px; border-radius: 4px;">
+                    <p style="margin: 0; color: #e65100; font-weight: 600; font-size: 1rem;">
+                        ⚠️ Vous devez obligatoirement sélectionner 2 ingrédients
+                    </p>
+                </div>
+
                 <!-- Base -->
                 <div class="customize-section">
                     <h4>Choisir la base</h4>
@@ -1247,12 +1254,12 @@
 
                 <!-- Ingrédients (2 obligatoires) -->
                 <div class="customize-section">
-                    <h4>Choisir 2 ingrédients (inclus)</h4>
+                    <h4>Choisir 2 ingrédients (inclus) <span style="color: #f44336;">*</span></h4>
                     <div id="rollsIngredients" class="ingredients-add">
                         <!-- Généré dynamiquement -->
                     </div>
                     <p style="font-size: 0.9rem; color: #666; margin-top: 10px;">
-                        <span id="rollsIngredientsCount">0/2</span> ingrédients sélectionnés
+                        <span id="rollsIngredientsCount" style="font-weight: bold; font-size: 1.1rem;">0/2</span> ingrédients sélectionnés
                     </p>
                 </div>
 
