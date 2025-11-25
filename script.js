@@ -2357,7 +2357,7 @@ function generatePatesSupplementsList() {
     if (!container) return;
     
     const selectedSize = document.querySelector('input[name="pateSize"]:checked')?.value || 'L';
-    const supplementPrice = EXTRAS.patesSupplements[selectedSize];
+    const supplementPrice = EXTRAS.patesSupplements[selectedSize].price;
     
     const toppingsHTML = Object.entries(EXTRAS.toppings)
         .filter(([key]) => !['base-creme', 'base-tomate'].includes(key))
@@ -2382,7 +2382,7 @@ function confirmPatesCustomization() {
     
     // Calculer le prix
     let price = selectedSize === 'L' ? pate.priceL : pate.priceXL;
-    const supplementPrice = EXTRAS.patesSupplements[selectedSize];
+    const supplementPrice = EXTRAS.patesSupplements[selectedSize].price;
     price += selectedSupplements.length * supplementPrice;
     
     // Stocker la personnalisation
@@ -2447,7 +2447,7 @@ function openSaladesCustomizeModal(saladeId) {
                     .map(([key, topping]) => `
                         <label class="ingredient-checkbox">
                             <input type="checkbox" name="saladeSupplement" value="${key}">
-                            <span>+ ${topping.name} <small>(+${EXTRAS.patesSupplements.L.toFixed(2)}€)</small></span>
+                            <span>+ ${topping.name} <small>(+${EXTRAS.patesSupplements.L.price.toFixed(2)}€)</small></span>
                         </label>
                     `).join('')}
             </div>
@@ -2472,7 +2472,7 @@ function confirmSaladesCustomization() {
     
     // Calculer le prix
     let price = salade.price;
-    const supplementPrice = EXTRAS.patesSupplements.L;
+    const supplementPrice = EXTRAS.patesSupplements.L.price;
     price += selectedSupplements.length * supplementPrice;
     
     // Stocker la personnalisation
