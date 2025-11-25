@@ -245,14 +245,33 @@ try {
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
             $whatsappResponse = curl_exec($ch);
             $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            $curlError = curl_error($ch);
             curl_close($ch);
             
             $whatsappSent = ($httpCode === 200);
             
-            // Log pour debug
-            error_log("WhatsApp - To: $whatsappNumber, HTTP Code: $httpCode, Sent: " . ($whatsappSent ? 'YES' : 'NO'));
+            // Log détaillé pour debug
+            error_log("WhatsApp API Call:");
+            error_log("  URL: $whatsappApiUrl");
+            error_log("  To: $whatsappNumber");
+            error_log("  HTTP Code: $httpCode");
+            error_log("  Sent: " . ($whatsappSent ? 'YES' : 'NO'));
+            
+            if ($curlError) {
+                error_log("  CURL Error: $curlError");
+            }
+            
             if (!$whatsappSent) {
-                error_log("WhatsApp Error Response: " . $whatsappResponse);
+                error_log("  API Response: " . $whatsappResponse);
+                // Décoder la réponse pour voir l'erreur
+                $responseData = json_decode($whatsappResponse, true);
+                if (isset($responseData['error'])) {
+                    error_log("  Error Type: " . ($responseData['error']['type'] ?? 'unknown'));
+                    error_log("  Error Message: " . ($responseData['error']['message'] ?? 'unknown'));
+                    error_log("  Error Code: " . ($responseData['error']['code'] ?? 'unknown'));
+                }
+            } else {
+                error_log("  ✓ WhatsApp message sent successfully!");
             }
         } else {
             error_log("WhatsApp non configuré - Token manquant");
