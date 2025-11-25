@@ -20,7 +20,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- CSS -->
-    <link rel="stylesheet" href="style.css?v=20251125">
+    <link rel="stylesheet" href="style.css?v=20251125b">
 </head>
 <body>
     <!-- HEADER / NAVBAR -->
@@ -28,7 +28,9 @@
         <nav class="navbar container">
             <div class="nav-logo">
                 <picture>
-                    <source srcset="img/New_logo_blanc_2022.png" media="(prefers-color-scheme: dark)">
+                    <!-- Mobile en mode sombre : logo blanc -->
+                    <source srcset="img/New_logo_blanc_2022.png" media="(max-width: 768px) and (prefers-color-scheme: dark)">
+                    <!-- Tous les autres cas : logo noir -->
                     <img src="img/New_logo_noir_2022.png" alt="Pizza Club Logo" class="logo" id="mainLogo">
                 </picture>
             </div>
@@ -1931,36 +1933,10 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
     
     <!-- Config & Scripts -->
-    <script>
-        // Adapter le logo selon le thème (clair/sombre) - AVANT chargement DOM
-        (function() {
-            const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-            const logoSrc = isDark ? 'img/New_logo_blanc_2022.png' : 'img/New_logo_noir_2022.png';
-            
-            // Fonction pour mettre à jour le logo
-            function updateLogo() {
-                const logo = document.getElementById('mainLogo');
-                if (logo) {
-                    const isDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-                    logo.src = isDark ? 'img/New_logo_blanc_2022.png' : 'img/New_logo_noir_2022.png';
-                }
-            }
-            
-            // Écouter les changements de thème
-            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateLogo);
-            
-            // Appliquer dès que le DOM est prêt
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', updateLogo);
-            } else {
-                updateLogo();
-            }
-        })();
-    </script>
     <script src="config.js?v=20251125"></script>
     <script src="data.js?v=20251125b"></script>
     <script src="emailjs-config.js?v=20251125"></script>
-    <script src="script.js?v=20251125f"></script>
+    <script src="script.js?v=20251125i"></script>
     <!-- Widget WhatsApp -->
     <a href="https://wa.me/262692620062?text=Bonjour%20Pizza%20Club%20!%20" 
        class="whatsapp-float" 

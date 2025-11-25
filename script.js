@@ -19,26 +19,11 @@ let promoCodeApplied = null; // Code promo actuellement appliqué
 let promoDiscount = 0; // Montant de la réduction
 
 // ========================================
-// GESTION DU LOGO ADAPTATIF (MODE SOMBRE/CLAIR)
-// ========================================
-function updateLogo() {
-    const logo = document.querySelector('.logo');
-    if (!logo) return;
-    
-    // Détecter le mode sombre
-    const isDarkMode = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-    
-    // Changer le logo en fonction du mode
-    logo.src = isDarkMode ? 'img/New_logo_blanc_2022.png' : 'img/New_logo_noir_2022.png';
-}
-
-// ========================================
 // INITIALISATION
 // ========================================
 document.addEventListener('DOMContentLoaded', () => {
     loadCartFromStorage(); // Charger le panier EN PREMIER
     initApp(); // Puis initialiser avec les préférences
-    updateLogo(); // Mettre à jour le logo selon le mode
     
     // Charger tous les produits
     renderPizzas();
@@ -49,11 +34,6 @@ document.addEventListener('DOMContentLoaded', () => {
     renderDesserts();
     
     setupEventListeners();
-    
-    // Écouter les changements de mode sombre/clair
-    if (window.matchMedia) {
-        window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', updateLogo);
-    }
     
     // Vérifier la disponibilité de la formule midi
     updateFormuleMidiAvailability();
@@ -140,7 +120,7 @@ function setupEventListeners() {
     });
 
     // Panier
-    document.getElementById('btnCart').addEventListener('click', openCart);
+    document.getElementById('btnCart').addEventListener('click', () => openCart(true));
     document.getElementById('cartClose').addEventListener('click', closeCart);
     document.getElementById('btnCheckout').addEventListener('click', openCheckoutModal);
 
@@ -2226,17 +2206,55 @@ function confirmFormuleMidiWithBoisson() {
         return;
     }
     
-    // Mettre à jour pendingFormuleMidi avec la boisson
-    if (window.pendingFormuleMidi) {
-        window.pendingFormuleMidi.boisson = selectedBoissonInput.value;
-        window.pendingFormuleMidi.boissonChosen = true;
-        
-        // Fermer le modal
+    // Vérifier que pendingFormuleMidi existe et a une customization
+    if (!window.pendingFormuleMidi || !window.pendingFormuleMidi.pizzaCustomization) {
+        console.error('Erreur: pas de personnalisation de pizza stockée');
+        showNotification('Erreur: veuillez recommencer', 'error');
         closeFormuleMidiModal();
-        
-        // Rappeler addToCart pour finaliser l'ajout au panier
-        addToCart();
+        window.pendingFormuleMidi = null;
+        return;
     }
+    
+    const formuleInfo = window.pendingFormuleMidi;
+    const pizza = PIZZAS_DATA.find(p => p.id === formuleInfo.pizzaId);
+    
+    if (!pizza) {
+        console.error('Pizza non trouvée:', formuleInfo.pizzaId);
+        showNotification('Erreur: pizza non trouvée', 'error');
+        return;
+    }
+    
+    // Calculer le prix avec la personnalisation
+    const customization = formuleInfo.pizzaCustomization;
+    const totalPrice = calculateItemPrice(formuleInfo.basePrice, customization, 1, pizza);
+    
+    // Créer l'item panier
+    const cartItem = {
+        id: Date.now(),
+        type: 'formule',
+        formuleType: 'midi',
+        name: 'Formule Midi',
+        basePrice: totalPrice,
+        quantity: 1,
+        totalPrice: totalPrice,
+        customization: {
+            pizza: pizza.name,
+            pizzaCustomization: customization,
+            boisson: selectedBoissonInput.value
+        }
+    };
+    
+    // Ajouter au panier
+    cart.push(cartItem);
+    saveCartToStorage();
+    updateCartUI();
+    
+    // Nettoyer
+    window.pendingFormuleMidi = null;
+    closeFormuleMidiModal();
+    
+    showNotification('Formule Midi ajoutée au panier', 'success');
+    setTimeout(() => openCart(), 100);
 }
 
 // ========================================
@@ -3156,12 +3174,12 @@ function closeConfirmationModal() {
 // ========================================
 // GESTION DU PANIER
 // ========================================
-function openCart() {
-    console.log('openCart() appelée'); // Debug
+function openCart(forceOpen = false) {
+    console.log('openCart() appelée, forceOpen:', forceOpen); // Debug
     
-    // Ne pas ouvrir automatiquement sur mobile
+    // Ne pas ouvrir automatiquement sur mobile (sauf si forceOpen = true)
     const isMobile = window.innerWidth <= 768;
-    if (isMobile) {
+    if (isMobile && !forceOpen) {
         console.log('Mobile détecté - panier non ouvert automatiquement');
         return;
     }
