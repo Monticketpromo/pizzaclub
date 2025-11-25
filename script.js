@@ -2179,6 +2179,10 @@ function openFormuleMidiModalForBoisson() {
     const modal = document.getElementById('formuleMidiModal');
     console.log('🔵 Modal trouvé:', modal);
     
+    // Récupérer la pizza choisie
+    const formuleInfo = window.pendingFormuleMidi;
+    const pizza = formuleInfo ? PIZZAS_DATA.find(p => p.id === formuleInfo.pizzaId) : null;
+    
     // Masquer la section pizzas
     const pizzasSection = modal.querySelector('.formule-pizzas-section');
     console.log('🔵 Pizzas section:', pizzasSection);
@@ -2190,20 +2194,26 @@ function openFormuleMidiModalForBoisson() {
     if (boissonSection) {
         boissonSection.style.display = 'block';
         
-        // Générer la liste des boissons si pas déjà fait
+        // Ajouter le titre avec le nom de la pizza
+        const sectionTitle = boissonSection.querySelector('h4');
+        if (sectionTitle && pizza) {
+            sectionTitle.innerHTML = `<i class="fas fa-pizza-slice"></i> ${pizza.name} - Choisir votre boisson 33cl (offerte)`;
+        }
+        
+        // Générer la liste des boissons (toujours, pour être sûr)
         const boissonsList = document.getElementById('formuleMidiBoissonsList');
-        console.log('🔵 Boissons list:', boissonsList, 'innerHTML empty?', !boissonsList?.innerHTML);
-        if (boissonsList && !boissonsList.innerHTML) {
+        console.log('🔵 Boissons list:', boissonsList);
+        if (boissonsList) {
+            // Vider la liste existante
+            boissonsList.innerHTML = '';
             console.log('🔵 Génération liste boissons');
-            const boissons = ['Coca-Cola', 'Coca-Cola Zero', 'Fanta', 'Sprite', 'Ice Tea', 'Eau'];
+            const boissons = ['Coca-Cola', 'Sambo', 'Thé Pêche', 'Thé Melon', 'Edena', 'Cilaos'];
             boissons.forEach((boisson, index) => {
                 const label = document.createElement('label');
-                label.className = 'formule-item-option';
+                label.className = 'ingredient-checkbox';
                 label.innerHTML = `
                     <input type="radio" name="formuleMidiBoisson" value="${boisson}" ${index === 0 ? 'checked' : ''}>
-                    <div class="formule-item-content">
-                        <div class="formule-item-name">${boisson}</div>
-                    </div>
+                    <span>${boisson}</span>
                 `;
                 boissonsList.appendChild(label);
             });
@@ -2215,7 +2225,7 @@ function openFormuleMidiModalForBoisson() {
     const confirmBtn = modal.querySelector('.btn-confirm-formule');
     console.log('🔵 Bouton confirmer trouvé:', confirmBtn);
     if (confirmBtn) {
-        confirmBtn.textContent = 'Ajouter au panier';
+        confirmBtn.innerHTML = '<i class="fas fa-cart-plus"></i> Ajouter au panier';
         confirmBtn.onclick = confirmFormuleMidiWithBoisson;
         console.log('🔵 Bouton configuré');
     }
