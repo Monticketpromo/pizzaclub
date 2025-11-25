@@ -35,9 +35,39 @@ document.addEventListener('DOMContentLoaded', () => {
     
     setupEventListeners();
     
+    // Gérer le scroll du body quand un modal s'ouvre/ferme
+    setupModalScrollLock();
+    
     // Vérifier la disponibilité de la formule midi
     updateFormuleMidiAvailability();
 });
+
+// Fonction pour bloquer le scroll du body quand un modal est ouvert
+function setupModalScrollLock() {
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.attributeName === 'class') {
+                const target = mutation.target;
+                if (target.classList.contains('modal')) {
+                    if (target.classList.contains('active')) {
+                        document.body.classList.add('modal-open');
+                    } else {
+                        // Vérifier s'il y a d'autres modals actifs
+                        const activeModals = document.querySelectorAll('.modal.active');
+                        if (activeModals.length === 0) {
+                            document.body.classList.remove('modal-open');
+                        }
+                    }
+                }
+            }
+        });
+    });
+    
+    // Observer tous les modals
+    document.querySelectorAll('.modal').forEach(modal => {
+        observer.observe(modal, { attributes: true });
+    });
+}
 
 function initApp() {
     console.log('Pizza Club - Application initialisée');
