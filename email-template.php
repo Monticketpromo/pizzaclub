@@ -68,7 +68,13 @@ function getClientEmailTemplate($orderData) {
                                 
                                 <?php // PIZZAS ?>
                                 <?php if ($item['type'] === 'pizza'): ?>
-                                    (<?= htmlspecialchars($custom['size']) ?>)
+                                    <?php 
+                                    // Conversion des tailles en dimensions
+                                    $sizeLabel = $custom['size'];
+                                    if ($custom['size'] === 'moyenne') $sizeLabel = '33cm';
+                                    if ($custom['size'] === 'grande') $sizeLabel = '40cm';
+                                    ?>
+                                    (<?= htmlspecialchars($sizeLabel) ?>)
                                     <?php if (isset($custom['base']) && $custom['base'] !== 'tomate'): ?>
                                         - Base <?= htmlspecialchars($custom['base']) ?>
                                     <?php endif; ?>
@@ -81,7 +87,13 @@ function getClientEmailTemplate($orderData) {
                                 
                                 <?php // PÂTES ?>
                                 <?php elseif ($item['type'] === 'pate'): ?>
-                                    (<?= htmlspecialchars($custom['size']) ?>)
+                                    <?php 
+                                    // Conversion des tailles en dimensions
+                                    $sizeLabel = $custom['size'];
+                                    if ($custom['size'] === 'L') $sizeLabel = 'Large';
+                                    if ($custom['size'] === 'XL') $sizeLabel = 'XL';
+                                    ?>
+                                    (<?= htmlspecialchars($sizeLabel) ?>)
                                     <?php if (isset($custom['base']) && $custom['base'] !== 'classique'): ?>
                                         - Base <?= htmlspecialchars($custom['base']) ?>
                                     <?php endif; ?>
@@ -156,7 +168,13 @@ function getClientEmailTemplate($orderData) {
                                 <?php elseif ($item['type'] === 'formule' && isset($custom['pizza'])): ?>
                                     <br><small>🍕 <?= htmlspecialchars($custom['pizza']) ?>
                                     <?php if (!empty($custom['pizzaCustomization'])): ?>
-                                        (<?= htmlspecialchars($custom['pizzaCustomization']['size']) ?>)
+                                        <?php 
+                                        // Conversion des tailles en dimensions
+                                        $sizeLabel = $custom['pizzaCustomization']['size'];
+                                        if ($custom['pizzaCustomization']['size'] === 'moyenne') $sizeLabel = '33cm';
+                                        if ($custom['pizzaCustomization']['size'] === 'grande') $sizeLabel = '40cm';
+                                        ?>
+                                        (<?= htmlspecialchars($sizeLabel) ?>)
                                         <?php if (isset($custom['pizzaCustomization']['base']) && $custom['pizzaCustomization']['base'] !== 'tomate'): ?>
                                             - Base <?= htmlspecialchars($custom['pizzaCustomization']['base']) ?>
                                         <?php endif; ?>
@@ -175,7 +193,13 @@ function getClientEmailTemplate($orderData) {
                                     <?php if ($custom['mainItem']['type'] === 'pate'): ?>
                                         🍝 <?= htmlspecialchars($custom['mainItem']['name']) ?>
                                         <?php if (!empty($custom['mainItem']['customization']['size'])): ?>
-                                            (<?= htmlspecialchars($custom['mainItem']['customization']['size']) ?>)
+                                            <?php 
+                                            // Conversion des tailles en dimensions
+                                            $sizeLabel = $custom['mainItem']['customization']['size'];
+                                            if ($custom['mainItem']['customization']['size'] === 'L') $sizeLabel = 'Large';
+                                            if ($custom['mainItem']['customization']['size'] === 'XL') $sizeLabel = 'XL';
+                                            ?>
+                                            (<?= htmlspecialchars($sizeLabel) ?>)
                                         <?php endif; ?>
                                     <?php else: ?>
                                         🥗 <?= htmlspecialchars($custom['mainItem']['name']) ?>

@@ -37,6 +37,8 @@ if ($orderData['customer']['deliveryMode'] === 'livraison') {
 // Formater les articles avec détails complets
 $itemsList = '';
 foreach ($orderData['items'] as $item) {
+    $custom = $item['customization'] ?? [];
+    
     // Déterminer le type de produit
     $productType = '';
     if (isset($item['type'])) {
@@ -56,15 +58,163 @@ foreach ($orderData['items'] as $item) {
     
     $itemsList .= $productType . $item['name'];
     
-    // Ajouter la taille si présente (pour pizzas et pâtes)
-    if (!empty($item['customization']['size'])) {
+    // ===== TRAITEMENT SPÉCIAL POUR LES FORMULES =====
+    if ($item['type'] === 'formule') {
+        // FORMULE MIDI - Détails de la pizza choisie
+        if (isset($custom['pizza']) && !empty($custom['pizza'])) {
+            $itemsList .= "\n  ▶ Pizza: " . $custom['pizza'];
+            
+            // Taille de la pizza
+            if (!empty($custom['pizzaSize'])) {
+                $pizzaSizeLabel = ($custom['pizzaSize'] === 'moyenne') ? '33cm' : '40cm';
+                $itemsList .= " (" . $pizzaSizeLabel . ")";
+            }
+            
+            // Base de la pizza
+            if (!empty($custom['pizzaBase'])) {
+                $baseLabel = ($custom['pizzaBase'] === 'creme') ? 'Crème' : 'Tomate';
+                $itemsList .= "\n    Base: " . $baseLabel;
+            }
+            
+            // Ingrédients ajoutés à la pizza
+            if (!empty($custom['pizzaAdded']) && is_array($custom['pizzaAdded']) && count($custom['pizzaAdded']) > 0) {
+                $names = [
+                    'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+                    'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+                    'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+                    'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+                    'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+                    'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+                    'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+                    'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+                ];
+                $addedNames = array_map(function($key) use ($names) {
+                    return $names[$key] ?? $key;
+                }, $custom['pizzaAdded']);
+                $itemsList .= "\n    ➕ AJOUTS: " . implode(', ', $addedNames);
+            }
+            
+            // Ingrédients retirés de la pizza
+            if (!empty($custom['pizzaRemoved']) && is_array($custom['pizzaRemoved']) && count($custom['pizzaRemoved']) > 0) {
+                $names = [
+                    'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+                    'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+                    'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+                    'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+                    'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+                    'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+                    'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+                    'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+                ];
+                $removedNames = array_map(function($key) use ($names) {
+                    return $names[$key] ?? $key;
+                }, $custom['pizzaRemoved']);
+                $itemsList .= "\n    ➖ RETRAITS: " . implode(', ', $removedNames);
+            }
+            
+            // Boisson de la formule midi
+            if (!empty($custom['boisson'])) {
+                $itemsList .= "\n  ▶ Boisson: " . $custom['boisson'] . " (33cl)";
+            }
+        }
+        // FORMULE PÂTES/SALADE - Détails du plat principal
+        elseif (isset($custom['pate']) && !empty($custom['pate'])) {
+            $itemsList .= "\n  ▶ Pâte: " . $custom['pate'];
+            
+            // Taille de la pâte
+            if (!empty($custom['pateSize'])) {
+                $pateSizeLabel = ($custom['pateSize'] === 'L') ? 'Large' : 'XL';
+                $itemsList .= " (" . $pateSizeLabel . ")";
+            }
+            
+            // Base de la pâte
+            if (!empty($custom['pateBase'])) {
+                $itemsList .= "\n    Base: " . $custom['pateBase'];
+            }
+            
+            // Suppléments de la pâte
+            if (!empty($custom['pateSupplements']) && is_array($custom['pateSupplements']) && count($custom['pateSupplements']) > 0) {
+                $names = [
+                    'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+                    'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+                    'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+                    'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+                    'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+                    'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+                    'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+                    'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+                ];
+                $supplementNames = array_map(function($key) use ($names) {
+                    return $names[$key] ?? $key;
+                }, $custom['pateSupplements']);
+                $itemsList .= "\n    ➕ Suppléments: " . implode(', ', $supplementNames);
+            }
+            
+            // Boisson
+            if (!empty($custom['boisson'])) {
+                $itemsList .= "\n  ▶ Boisson: " . $custom['boisson'];
+            }
+            
+            // Dessert
+            if (!empty($custom['dessert'])) {
+                $itemsList .= "\n  ▶ Dessert: " . $custom['dessert'];
+            }
+        }
+        elseif (isset($custom['salade']) && !empty($custom['salade'])) {
+            $itemsList .= "\n  ▶ Salade: " . $custom['salade'];
+            
+            // Options de la salade
+            if (!empty($custom['saladeOptions']) && is_array($custom['saladeOptions']) && count($custom['saladeOptions']) > 0) {
+                $optionLabels = [];
+                foreach ($custom['saladeOptions'] as $opt) {
+                    if ($opt === 'pain') $optionLabels[] = 'Avec pain';
+                    elseif ($opt === 'vinaigrette-sup') $optionLabels[] = 'Vinaigrette supplémentaire';
+                }
+                if (count($optionLabels) > 0) {
+                    $itemsList .= "\n    Options: " . implode(', ', $optionLabels);
+                }
+            }
+            
+            // Suppléments de la salade
+            if (!empty($custom['saladeSupplements']) && is_array($custom['saladeSupplements']) && count($custom['saladeSupplements']) > 0) {
+                $names = [
+                    'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+                    'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+                    'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+                    'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+                    'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+                    'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+                    'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+                    'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+                ];
+                $supplementNames = array_map(function($key) use ($names) {
+                    return $names[$key] ?? $key;
+                }, $custom['saladeSupplements']);
+                $itemsList .= "\n    ➕ Suppléments: " . implode(', ', $supplementNames);
+            }
+            
+            // Boisson
+            if (!empty($custom['boisson'])) {
+                $itemsList .= "\n  ▶ Boisson: " . $custom['boisson'];
+            }
+            
+            // Dessert
+            if (!empty($custom['dessert'])) {
+                $itemsList .= "\n  ▶ Dessert: " . $custom['dessert'];
+            }
+        }
+    }
+    // ===== FIN TRAITEMENT FORMULES =====
+    
+    // Ajouter la taille si présente (pour pizzas et pâtes normales, pas formules)
+    elseif (!empty($custom['size'])) {
         $sizeLabel = '';
-        switch($item['customization']['size']) {
+        switch($custom['size']) {
             case 'moyenne': $sizeLabel = '33cm'; break;
             case 'grande': $sizeLabel = '40cm'; break;
             case 'L': $sizeLabel = 'Large'; break;
             case 'XL': $sizeLabel = 'XL'; break;
-            default: $sizeLabel = $item['customization']['size'];
+            default: $sizeLabel = $custom['size'];
         }
         $itemsList .= " - Taille: " . $sizeLabel;
     } elseif (!empty($item['size'])) {
@@ -72,33 +222,67 @@ foreach ($orderData['items'] as $item) {
     }
     
     // Ajouter les ingrédients des rolls (obligatoire : 2 ingrédients)
-    if (!empty($item['customization']['ingredients']) && is_array($item['customization']['ingredients'])) {
-        $itemsList .= "\n  Ingrédients: " . implode(', ', $item['customization']['ingredients']);
+    if (!empty($custom['ingredients']) && is_array($custom['ingredients'])) {
+        $itemsList .= "\n  Ingrédients: " . implode(', ', $custom['ingredients']);
     }
     
-    // Ajouter la base (crème/tomate) pour rolls, buns, etc.
-    if (!empty($item['customization']['base'])) {
-        $baseLabel = $item['customization']['base'] === 'creme' ? 'Crème' : 'Tomate';
+    // Ajouter la base (crème/tomate) pour rolls, buns, pizzas etc.
+    if (!empty($custom['base']) && $item['type'] !== 'formule') {
+        $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
         $itemsList .= "\n  Base: " . $baseLabel;
     }
     
-    // Ajouter les suppléments si présents
-    if (!empty($item['customization']['supplements']) && is_array($item['customization']['supplements']) && count($item['customization']['supplements']) > 0) {
-        // Charger les noms depuis EXTRAS.toppings si possible
-        $supplementNames = array_map(function($key) {
-            // Mapping simplifié des clés vers les noms
-            $names = [
-                'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
-                'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
-                'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
-                'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
-                'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
-                'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
-                'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
-                'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
-            ];
+    // Ajouter les ingrédients ajoutés (pizzas, buns, rolls)
+    if (!empty($custom['added']) && is_array($custom['added']) && count($custom['added']) > 0) {
+        $names = [
+            'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+            'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+            'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+            'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+            'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+            'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+            'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+            'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+        ];
+        $addedNames = array_map(function($key) use ($names) {
             return $names[$key] ?? $key;
-        }, $item['customization']['supplements']);
+        }, $custom['added']);
+        $itemsList .= "\n  ➕ AJOUTS: " . implode(', ', $addedNames);
+    }
+    
+    // Ajouter les ingrédients retirés (pizzas, buns, rolls)
+    if (!empty($custom['removed']) && is_array($custom['removed']) && count($custom['removed']) > 0) {
+        $names = [
+            'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+            'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+            'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+            'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+            'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+            'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+            'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+            'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+        ];
+        $removedNames = array_map(function($key) use ($names) {
+            return $names[$key] ?? $key;
+        }, $custom['removed']);
+        $itemsList .= "\n  ➖ RETRAITS: " . implode(', ', $removedNames);
+    }
+    
+    // Ajouter les suppléments si présents (pâtes, salades normales)
+    if (!empty($custom['supplements']) && is_array($custom['supplements']) && count($custom['supplements']) > 0) {
+        $names = [
+            'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
+            'oignons' => 'Oignons', 'tomates' => 'Tomates', 'pommesDeTerre' => 'Pommes de terre',
+            'mais' => 'Maïs', 'grosPiment' => 'Gros piment', 'fromage' => 'Fromage',
+            'chevre' => 'Chèvre', 'gorgonzola' => 'Gorgonzola', 'parmesan' => 'Parmesan',
+            'jambon' => 'Jambon', 'poulet' => 'Poulet', 'merguez' => 'Merguez',
+            'chorizo' => 'Chorizo', 'boeuf' => 'Bœuf', 'lardons' => 'Lardons',
+            'thon' => 'Thon', 'anchois' => 'Anchois', 'crevettes' => 'Crevettes',
+            'saumon' => 'Saumon', 'oeuf' => 'Œuf', 'miel' => 'Miel'
+        ];
+        $supplementNames = array_map(function($key) use ($names) {
+            return $names[$key] ?? $key;
+        }, $custom['supplements']);
         $itemsList .= "\n  Suppléments: " . implode(', ', $supplementNames);
     }
     // Ancienne structure (compatibilité)
@@ -106,7 +290,7 @@ foreach ($orderData['items'] as $item) {
         $itemsList .= "\n  Suppléments: " . implode(', ', $item['supplements']);
     }
     
-    // Ajouter les options si présentes
+    // Ajouter les options si présentes (salades)
     if (!empty($item['options'])) {
         $itemsList .= "\n  Options: " . $item['options'];
     }
@@ -213,7 +397,68 @@ try {
         }
         $whatsappMessage .= "📦 *COMMANDE:*\n";
         foreach ($orderData['items'] as $item) {
-            $whatsappMessage .= "• {$item['name']} x{$item['quantity']} - " . number_format($item['totalPrice'], 2) . "€\n";
+            $custom = $item['customization'] ?? [];
+            $whatsappMessage .= "• {$item['name']}";
+            
+            // Détails formule midi
+            if ($item['type'] === 'formule' && isset($custom['pizza'])) {
+                $whatsappMessage .= "\n  🍕 " . $custom['pizza'];
+                if (!empty($custom['pizzaSize'])) {
+                    $size = ($custom['pizzaSize'] === 'moyenne') ? '33cm' : '40cm';
+                    $whatsappMessage .= " ({$size})";
+                }
+                if (!empty($custom['pizzaBase'])) {
+                    $base = ($custom['pizzaBase'] === 'creme') ? 'Crème' : 'Tomate';
+                    $whatsappMessage .= " - Base {$base}";
+                }
+                if (!empty($custom['pizzaAdded']) && count($custom['pizzaAdded']) > 0) {
+                    $whatsappMessage .= "\n    ➕ " . implode(', ', $custom['pizzaAdded']);
+                }
+                if (!empty($custom['pizzaRemoved']) && count($custom['pizzaRemoved']) > 0) {
+                    $whatsappMessage .= "\n    ➖ " . implode(', ', $custom['pizzaRemoved']);
+                }
+                if (!empty($custom['boisson'])) {
+                    $whatsappMessage .= "\n  🥤 " . $custom['boisson'] . " 33cl";
+                }
+            }
+            // Détails formule pâtes
+            elseif ($item['type'] === 'formule' && isset($custom['pate'])) {
+                $whatsappMessage .= "\n  🍝 " . $custom['pate'];
+                if (!empty($custom['pateSize'])) {
+                    $size = ($custom['pateSize'] === 'L') ? 'Large' : 'XL';
+                    $whatsappMessage .= " ({$size})";
+                }
+                if (!empty($custom['pateSupplements']) && count($custom['pateSupplements']) > 0) {
+                    $whatsappMessage .= "\n    ➕ " . implode(', ', $custom['pateSupplements']);
+                }
+                if (!empty($custom['boisson'])) {
+                    $whatsappMessage .= "\n  🥤 " . $custom['boisson'];
+                }
+                if (!empty($custom['dessert'])) {
+                    $whatsappMessage .= "\n  🍰 " . $custom['dessert'];
+                }
+            }
+            // Détails formule salade
+            elseif ($item['type'] === 'formule' && isset($custom['salade'])) {
+                $whatsappMessage .= "\n  🥗 " . $custom['salade'];
+                if (!empty($custom['saladeSupplements']) && count($custom['saladeSupplements']) > 0) {
+                    $whatsappMessage .= "\n    ➕ " . implode(', ', $custom['saladeSupplements']);
+                }
+                if (!empty($custom['boisson'])) {
+                    $whatsappMessage .= "\n  🥤 " . $custom['boisson'];
+                }
+                if (!empty($custom['dessert'])) {
+                    $whatsappMessage .= "\n  🍰 " . $custom['dessert'];
+                }
+            }
+            // Taille pour produits normaux
+            elseif (!empty($custom['size'])) {
+                $sizeLabels = ['moyenne' => '33cm', 'grande' => '40cm', 'L' => 'Large', 'XL' => 'XL'];
+                $size = $sizeLabels[$custom['size']] ?? $custom['size'];
+                $whatsappMessage .= " ({$size})";
+            }
+            
+            $whatsappMessage .= " x{$item['quantity']} - " . number_format($item['totalPrice'], 2) . "€\n";
         }
         $whatsappMessage .= "\n💰 Sous-total: " . number_format($orderData['subtotal'], 2) . "€\n";
         $whatsappMessage .= "🚚 Livraison: " . number_format($orderData['deliveryFee'], 2) . "€\n";

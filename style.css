@@ -638,6 +638,44 @@ input, textarea, select {
     color: #FFD700;
 }
 
+.badge-unavailable {
+    background: rgba(128, 128, 128, 0.2);
+    color: #666;
+    border: 1px solid rgba(128, 128, 128, 0.4);
+    font-weight: 600;
+}
+
+.badge-unavailable i {
+    color: #999;
+}
+
+/* Carte produit indisponible */
+.item-unavailable {
+    opacity: 0.6;
+    position: relative;
+}
+
+.item-unavailable::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.05);
+    pointer-events: none;
+}
+
+.item-unavailable .pizza-image img {
+    filter: grayscale(50%);
+}
+
+.pizza-badge.badge-unavailable {
+    background: rgba(128, 128, 128, 0.9);
+    color: white;
+    font-weight: 600;
+}
+
 /* En-têtes de catégorie */
 .category-header {
     grid-column: 1 / -1;

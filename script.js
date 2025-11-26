@@ -223,6 +223,23 @@ function initApp() {
 }
 
 // ========================================
+// GESTION DES INDISPONIBILITÉS
+// ========================================
+function isItemUnavailable(id, type) {
+    const key = `${type}-${id}`;
+    return UNAVAILABLE_ITEMS && UNAVAILABLE_ITEMS[key] === true;
+}
+
+function isIngredientUnavailable(ingredientKey) {
+    return UNAVAILABLE_INGREDIENTS && UNAVAILABLE_INGREDIENTS[ingredientKey] === true;
+}
+
+function getAvailableIngredients(ingredientsList) {
+    if (!UNAVAILABLE_INGREDIENTS) return ingredientsList;
+    return Object.keys(ingredientsList).filter(key => !isIngredientUnavailable(key));
+}
+
+// ========================================
 // EVENT LISTENERS
 // ========================================
 function setupEventListeners() {
@@ -415,12 +432,21 @@ function createPizzaCard(pizza) {
     card.className = 'pizza-card';
     card.dataset.category = pizza.category;
 
+    // Vérifier si indisponible
+    const unavailable = isItemUnavailable(pizza.id, 'pizza');
+    if (unavailable) {
+        card.classList.add('item-unavailable');
+    }
+
     // Récupérer l'icône de catégorie
     const categoryInfo = CATEGORY_ICONS[pizza.category];
     const categoryIcon = categoryInfo ? `<i class="fas ${categoryInfo.icon} category-icon" style="color: ${categoryInfo.color}"></i>` : '';
     
-    // Créer les badges spéciaux (épicé, premium)
+    // Créer les badges spéciaux (épicé, premium, indisponible)
     let specialBadges = '';
+    if (unavailable) {
+        specialBadges += '<span class="special-badge badge-unavailable"><i class="fas fa-ban"></i> Indisponible</span>';
+    }
     if (pizza.isSpicy) {
         specialBadges += '<span class="special-badge badge-spicy"><i class="fas fa-pepper-hot"></i> Forte</span>';
     }
@@ -445,9 +471,10 @@ function createPizzaCard(pizza) {
             <div class="pizza-footer">
                 <div class="pizza-price">${pizza.price33.toFixed(2)}€</div>
                 <div class="pizza-actions">
-                    <button class="btn btn-primary btn-block" onclick="openCustomizeModal(${pizza.id})">
-                        <i class="fas fa-pizza-slice"></i> Personnaliser & Commander
-                    </button>
+                    ${unavailable 
+                        ? '<button class="btn btn-secondary btn-block" disabled><i class="fas fa-ban"></i> Indisponible</button>'
+                        : `<button class="btn btn-primary btn-block" onclick="openCustomizeModal(${pizza.id})"><i class="fas fa-pizza-slice"></i> Personnaliser & Commander</button>`
+                    }
                 </div>
             </div>
         </div>
@@ -522,6 +549,12 @@ function createSimpleCard(item, type) {
     const card = document.createElement('div');
     card.className = 'pizza-card';
     
+    // Vérifier si indisponible
+    const unavailable = isItemUnavailable(item.id, type);
+    if (unavailable) {
+        card.classList.add('item-unavailable');
+    }
+    
     // Pour les pâtes et salades, afficher seulement le prix de base
     const isPate = type === 'pate';
     const isSalade = type === 'salade';
@@ -539,9 +572,11 @@ function createSimpleCard(item, type) {
         priceDisplay = `<div class="pizza-price">${item.price.toFixed(2)}€</div>`;
     }
     
-    // Boutons selon le type
+    // Boutons selon le type et disponibilité
     let buttonHTML;
-    if (isPate) {
+    if (unavailable) {
+        buttonHTML = '<button class="btn btn-secondary btn-block" disabled><i class="fas fa-ban"></i> Indisponible</button>';
+    } else if (isPate) {
         buttonHTML = `<button class="btn btn-primary btn-block" onclick="openPatesCustomizeModal(${item.id})">
                 <i class="fas fa-utensils"></i> Commander
            </button>`;
@@ -566,6 +601,7 @@ function createSimpleCard(item, type) {
     card.innerHTML = `
         <div class="pizza-image">
             <img src="${item.image}" alt="${item.name}">
+            ${unavailable ? '<div class="pizza-badge badge-unavailable">Indisponible</div>' : ''}
         </div>
         <div class="pizza-content">
             <div class="pizza-header">
