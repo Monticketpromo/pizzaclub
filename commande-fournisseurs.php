@@ -251,7 +251,18 @@ function sendOrderEmail($supplierName, $email, $items, $total) {
     $headers .= "Content-type: text/html; charset=UTF-8\r\n";
     $headers .= "From: Pizza Club <commande@pizzaclub.re>\r\n";
     $headers .= "Reply-To: commande@pizzaclub.re\r\n";
-    
+
+    // Ajout CC pour les 4 fournisseurs principaux
+    $ccList = [
+        'commandes@frais-import.com',
+        'commande@sis.re',
+        'Zembal974@gmail.com',
+        'aphrodrink@gmail.com'
+    ];
+    if (in_array($email, $ccList)) {
+        $headers .= "Cc: contact@pizzaclub.re\r\n";
+    }
+
     return mail($email, $subject, $message, $headers);
 }
 ?>
