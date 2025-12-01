@@ -45,6 +45,14 @@ if ($isLoggedIn && $_SERVER['REQUEST_METHOD'] === 'POST') {
         if ($data && isset($data['items']) && isset($data['ingredients'])) {
             $data['lastUpdate'] = date('c');
             
+            // Initialiser la structure des fermetures si elle n'existe pas
+            if (!isset($data['closures'])) {
+                $data['closures'] = [
+                    'emergency' => null,
+                    'scheduled' => []
+                ];
+            }
+            
             if (file_put_contents(JSON_FILE, json_encode($data, JSON_PRETTY_PRINT))) {
                 echo json_encode(['success' => true, 'message' => 'Sauvegarde réussie']);
             } else {
@@ -418,6 +426,178 @@ if (file_exists(JSON_FILE)) {
             align-items: center;
             gap: 15px;
             z-index: 1000;
+        }
+
+        .closure-card {
+            background: white;
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .closure-card h2 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .closure-card p {
+            color: #666;
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .closure-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group label {
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .form-group input[type="date"],
+        .form-group input[type="time"],
+        .form-group input[type="text"] {
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 15px;
+            transition: border-color 0.3s;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .btn-close-now {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn-close-now:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(240,147,251,0.4);
+        }
+
+        .btn-add-closure {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            font-size: 16px;
+        }
+
+        .btn-add-closure:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(102,126,234,0.4);
+        }
+
+        .closures-list {
+            margin-top: 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .closure-item {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-left: 4px solid #667eea;
+        }
+
+        .closure-item.active {
+            background: #fff3e0;
+            border-left-color: #ff9800;
+        }
+
+        .closure-item.emergency {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+
+        .closure-info {
+            flex: 1;
+        }
+
+        .closure-info h4 {
+            color: #333;
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+
+        .closure-info p {
+            color: #666;
+            font-size: 13px;
+            margin: 0;
+        }
+
+        .closure-badge {
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 10px;
+        }
+
+        .badge-active {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .badge-future {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .badge-emergency {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        .btn-remove {
+            background: #f44336;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 8px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-remove:hover {
+            background: #d32f2f;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 15px;
+            opacity: 0.5;
             animation: slideIn 0.3s ease;
         }
 
@@ -556,6 +736,9 @@ if (file_exists(JSON_FILE)) {
                 <button class="tab-btn" onclick="switchTab('ingredients')">
                     <i class="fas fa-carrot"></i> Ingrédients
                 </button>
+                <button class="tab-btn" onclick="switchTab('closures')">
+                    <i class="fas fa-door-closed"></i> Fermetures
+                </button>
             </div>
 
             <!-- Contenu des onglets -->
@@ -574,6 +757,58 @@ if (file_exists(JSON_FILE)) {
             <div id="tab-ingredients" class="tab-content">
                 <div class="products-grid" id="ingredients-grid"></div>
             </div>
+            
+            <!-- Onglet Fermetures -->
+            <div id="tab-closures" class="tab-content">
+                <!-- Fermeture anticipée -->
+                <div class="closure-card emergency">
+                    <h2><i class="fas fa-clock"></i> Fermeture Anticipée</h2>
+                    <p>Fermer les commandes <strong>maintenant</strong> pour le reste de la journée (ex: départ anticipé, problème technique).</p>
+                    <div class="closure-form">
+                        <div class="form-group">
+                            <label for="emergency-reason">Raison de la fermeture (optionnel)</label>
+                            <input type="text" id="emergency-reason" placeholder="Ex: Départ anticipé, problème technique...">
+                        </div>
+                        <button class="btn btn-close-now" onclick="closeNow()">
+                            <i class="fas fa-power-off"></i> Fermer les commandes maintenant
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Fermetures programmées -->
+                <div class="closure-card">
+                    <h2><i class="fas fa-calendar-times"></i> Fermetures Programmées</h2>
+                    <p>Programmer des fermetures à l'avance (ex: jours fériés, congés, événements spéciaux).</p>
+                    <div class="closure-form">
+                        <div class="form-group">
+                            <label for="closure-date">Date de fermeture *</label>
+                            <input type="date" id="closure-date" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="closure-reason">Raison de la fermeture *</label>
+                            <input type="text" id="closure-reason" placeholder="Ex: Noël, Congés annuels, Événement spécial..." required>
+                        </div>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                            <div class="form-group">
+                                <label for="closure-start-time">Heure de début (optionnel)</label>
+                                <input type="time" id="closure-start-time" placeholder="Laisser vide pour toute la journée">
+                            </div>
+                            <div class="form-group">
+                                <label for="closure-end-time">Heure de fin (optionnel)</label>
+                                <input type="time" id="closure-end-time" placeholder="Laisser vide pour toute la journée">
+                            </div>
+                        </div>
+                        <button class="btn btn-add-closure" onclick="addScheduledClosure()">
+                            <i class="fas fa-plus-circle"></i> Programmer cette fermeture
+                        </button>
+                    </div>
+
+                    <!-- Liste des fermetures programmées -->
+                    <div class="closures-list" id="closures-list">
+                        <!-- Les fermetures seront ajoutées ici dynamiquement -->
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -590,6 +825,14 @@ if (file_exists(JSON_FILE)) {
     <script>
         // Données d'indisponibilité chargées depuis PHP
         let unavailability = <?= json_encode($unavailabilityData) ?>;
+        
+        // Initialiser les fermetures si elles n'existent pas
+        if (!unavailability.closures) {
+            unavailability.closures = {
+                emergency: null, // Fermeture d'urgence en cours
+                scheduled: []    // Fermetures programmées
+            };
+        }
 
         // Initialisation au chargement
         document.addEventListener('DOMContentLoaded', function() {
@@ -598,6 +841,11 @@ if (file_exists(JSON_FILE)) {
             loadSalades();
             loadDesserts();
             loadIngredients();
+            loadClosures();
+            
+            // Définir la date minimale à aujourd'hui
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('closure-date').setAttribute('min', today);
         });
 
         // Chargement des pizzas
@@ -861,6 +1109,162 @@ if (file_exists(JSON_FILE)) {
             setTimeout(() => {
                 notif.classList.remove('show');
             }, 3000);
+        }
+
+        // Fermeture anticipée (maintenant)
+        function closeNow() {
+            const reason = document.getElementById('emergency-reason').value || 'Fermeture anticipée';
+            
+            if (confirm('⚠️ Confirmer la fermeture des commandes MAINTENANT ?\n\nLes clients ne pourront plus commander pour aujourd\'hui.')) {
+                const now = new Date();
+                unavailability.closures.emergency = {
+                    date: now.toISOString().split('T')[0],
+                    time: now.toTimeString().split(' ')[0],
+                    reason: reason,
+                    timestamp: now.toISOString()
+                };
+                
+                saveChanges();
+                loadClosures();
+                document.getElementById('emergency-reason').value = '';
+                
+                alert('✅ Commandes fermées avec succès !\n\nLes clients verront un message indiquant que le restaurant est fermé.');
+            }
+        }
+
+        // Ajouter une fermeture programmée
+        function addScheduledClosure() {
+            const date = document.getElementById('closure-date').value;
+            const reason = document.getElementById('closure-reason').value;
+            const startTime = document.getElementById('closure-start-time').value;
+            const endTime = document.getElementById('closure-end-time').value;
+            
+            if (!date || !reason) {
+                alert('❌ Veuillez remplir au moins la date et la raison de la fermeture.');
+                return;
+            }
+            
+            // Vérifier si une fermeture existe déjà pour cette date
+            const existingClosure = unavailability.closures.scheduled.find(c => c.date === date);
+            if (existingClosure) {
+                if (!confirm('⚠️ Une fermeture existe déjà pour cette date.\n\nVoulez-vous la remplacer ?')) {
+                    return;
+                }
+                // Supprimer l'ancienne fermeture
+                unavailability.closures.scheduled = unavailability.closures.scheduled.filter(c => c.date !== date);
+            }
+            
+            const closure = {
+                id: Date.now(),
+                date: date,
+                reason: reason,
+                startTime: startTime || null,
+                endTime: endTime || null,
+                fullDay: !startTime && !endTime,
+                createdAt: new Date().toISOString()
+            };
+            
+            unavailability.closures.scheduled.push(closure);
+            unavailability.closures.scheduled.sort((a, b) => new Date(a.date) - new Date(b.date));
+            
+            saveChanges();
+            loadClosures();
+            
+            // Réinitialiser le formulaire
+            document.getElementById('closure-date').value = '';
+            document.getElementById('closure-reason').value = '';
+            document.getElementById('closure-start-time').value = '';
+            document.getElementById('closure-end-time').value = '';
+            
+            alert('✅ Fermeture programmée avec succès !');
+        }
+
+        // Supprimer une fermeture programmée
+        function removeScheduledClosure(id) {
+            if (confirm('❌ Supprimer cette fermeture programmée ?')) {
+                unavailability.closures.scheduled = unavailability.closures.scheduled.filter(c => c.id !== id);
+                saveChanges();
+                loadClosures();
+            }
+        }
+
+        // Réactiver les commandes (annuler fermeture d'urgence)
+        function reopenNow() {
+            if (confirm('✅ Réactiver les commandes maintenant ?')) {
+                unavailability.closures.emergency = null;
+                saveChanges();
+                loadClosures();
+                alert('✅ Commandes réactivées avec succès !');
+            }
+        }
+
+        // Charger et afficher les fermetures
+        function loadClosures() {
+            const list = document.getElementById('closures-list');
+            const today = new Date().toISOString().split('T')[0];
+            
+            list.innerHTML = '';
+            
+            // Afficher la fermeture d'urgence si active
+            if (unavailability.closures.emergency) {
+                const emergency = unavailability.closures.emergency;
+                const emergencyDate = new Date(emergency.timestamp);
+                
+                list.innerHTML += `
+                    <div class="closure-item emergency">
+                        <div class="closure-info">
+                            <h4>🚨 FERMETURE D'URGENCE EN COURS</h4>
+                            <p><strong>Depuis:</strong> ${emergencyDate.toLocaleDateString('fr-FR')} à ${emergency.time}</p>
+                            <p><strong>Raison:</strong> ${emergency.reason}</p>
+                        </div>
+                        <span class="closure-badge badge-emergency">ACTIF</span>
+                        <button class="btn btn-remove" onclick="reopenNow()">
+                            <i class="fas fa-check"></i> Réactiver
+                        </button>
+                    </div>
+                `;
+            }
+            
+            // Afficher les fermetures programmées
+            if (unavailability.closures.scheduled && unavailability.closures.scheduled.length > 0) {
+                unavailability.closures.scheduled.forEach(closure => {
+                    const closureDate = new Date(closure.date);
+                    const isToday = closure.date === today;
+                    const isPast = closure.date < today;
+                    
+                    if (isPast) return; // Ne pas afficher les fermetures passées
+                    
+                    const timeInfo = closure.fullDay 
+                        ? 'Toute la journée' 
+                        : `De ${closure.startTime || '00:00'} à ${closure.endTime || '23:59'}`;
+                    
+                    list.innerHTML += `
+                        <div class="closure-item ${isToday ? 'active' : ''}">
+                            <div class="closure-info">
+                                <h4>${closure.reason}</h4>
+                                <p><strong>Date:</strong> ${closureDate.toLocaleDateString('fr-FR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
+                                <p><strong>Horaires:</strong> ${timeInfo}</p>
+                            </div>
+                            <span class="closure-badge ${isToday ? 'badge-active' : 'badge-future'}">
+                                ${isToday ? 'AUJOURD\'HUI' : 'À VENIR'}
+                            </span>
+                            <button class="btn btn-remove" onclick="removeScheduledClosure(${closure.id})">
+                                <i class="fas fa-trash"></i> Supprimer
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+            
+            // Message si aucune fermeture
+            if (list.innerHTML === '') {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-calendar-check"></i>
+                        <p>Aucune fermeture programmée</p>
+                    </div>
+                `;
+            }
         }
     </script>
 <?php endif; ?>
