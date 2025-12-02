@@ -22,6 +22,31 @@ if (!$orderData) {
     exit;
 }
 
+// ========================================
+// VÉRIFICATION DES FERMETURES (côté serveur)
+// ========================================
+require_once __DIR__ . '/check-closure.php';
+
+// Vérifier si c'est une commande "maintenant" (pas programmée)
+$isOrderNow = true;
+if (isset($orderData['scheduledDate']) && !empty($orderData['scheduledDate'])) {
+    $isOrderNow = false; // C'est une commande programmée
+}
+
+// Si c'est une commande "maintenant", vérifier si le restaurant est fermé
+if ($isOrderNow) {
+    $closureStatus = isRestaurantClosed();
+    if ($closureStatus['isClosed']) {
+        http_response_code(403);
+        echo json_encode([
+            'success' => false, 
+            'error' => $closureStatus['message'],
+            'closureType' => $closureStatus['type'] ?? 'unknown'
+        ]);
+        exit;
+    }
+}
+
 // Configuration email
 $to = 'commande@pizzaclub.re';
 $subject = 'Nouvelle commande ' . $orderData['orderNumber'];

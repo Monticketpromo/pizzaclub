@@ -2,12 +2,13 @@
 /**
  * API pour vérifier si le restaurant est fermé
  * Utilisé par le formulaire de commande pour bloquer les commandes si nécessaire
+ * Peut être inclus comme module (require_once) ou appelé directement comme API
  */
 
-header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
-
-define('JSON_FILE', __DIR__ . '/unavailability.json');
+// Ne définir JSON_FILE que s'il n'est pas déjà défini
+if (!defined('JSON_FILE')) {
+    define('JSON_FILE', __DIR__ . '/unavailability.json');
+}
 
 function isRestaurantClosed() {
     if (!file_exists(JSON_FILE)) {
@@ -100,6 +101,12 @@ function isRestaurantClosed() {
     ];
 }
 
-// Retourner le statut
-$status = isRestaurantClosed();
-echo json_encode($status);
+// Si appelé directement comme API (pas inclus comme module)
+// Vérifier si on est dans un contexte d'appel direct
+if (basename($_SERVER['SCRIPT_FILENAME']) === 'check-closure.php') {
+    header('Content-Type: application/json');
+    header('Access-Control-Allow-Origin: *');
+    
+    $status = isRestaurantClosed();
+    echo json_encode($status);
+}
