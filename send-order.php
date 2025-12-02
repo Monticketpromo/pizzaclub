@@ -221,13 +221,24 @@ foreach ($orderData['items'] as $item) {
         $itemsList .= " - Taille: " . $item['size'];
     }
     
+    // Ajouter la base pour PIZZAS individuelles (non-formules)
+    if ($item['type'] === 'pizza' && !empty($custom['base']) && $item['type'] !== 'formule') {
+        $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
+        $itemsList .= "\n  Base: " . $baseLabel;
+    }
+    
+    // Ajouter la base pour PÂTES individuelles (non-formules)
+    if ($item['type'] === 'pate' && !empty($custom['base']) && $item['type'] !== 'formule') {
+        $itemsList .= "\n  Base: " . $custom['base'];
+    }
+    
     // Ajouter les ingrédients des rolls (obligatoire : 2 ingrédients)
     if (!empty($custom['ingredients']) && is_array($custom['ingredients'])) {
         $itemsList .= "\n  Ingrédients: " . implode(', ', $custom['ingredients']);
     }
     
-    // Ajouter la base (crème/tomate) pour rolls, buns, pizzas etc.
-    if (!empty($custom['base']) && $item['type'] !== 'formule') {
+    // Ajouter la base pour rolls et buns (crème/tomate)
+    if (($item['type'] === 'roll' || $item['type'] === 'bun') && !empty($custom['base'])) {
         $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
         $itemsList .= "\n  Base: " . $baseLabel;
     }
@@ -283,15 +294,26 @@ foreach ($orderData['items'] as $item) {
         $supplementNames = array_map(function($key) use ($names) {
             return $names[$key] ?? $key;
         }, $custom['supplements']);
-        $itemsList .= "\n  Suppléments: " . implode(', ', $supplementNames);
+        $itemsList .= "\n  ➕ Suppléments: " . implode(', ', $supplementNames);
     }
     // Ancienne structure (compatibilité)
     elseif (!empty($item['supplements']) && is_array($item['supplements']) && count($item['supplements']) > 0) {
-        $itemsList .= "\n  Suppléments: " . implode(', ', $item['supplements']);
+        $itemsList .= "\n  ➕ Suppléments: " . implode(', ', $item['supplements']);
     }
     
-    // Ajouter les options si présentes (salades)
-    if (!empty($item['options'])) {
+    // Ajouter les options si présentes (salades individuelles)
+    if (!empty($custom['options']) && is_array($custom['options']) && count($custom['options']) > 0) {
+        $optionLabels = [];
+        foreach ($custom['options'] as $opt) {
+            if ($opt === 'pain') $optionLabels[] = 'Avec pain';
+            elseif ($opt === 'vinaigrette-sup') $optionLabels[] = 'Vinaigrette supplémentaire';
+        }
+        if (count($optionLabels) > 0) {
+            $itemsList .= "\n  Options: " . implode(', ', $optionLabels);
+        }
+    }
+    // Ancienne structure (compatibilité)
+    elseif (!empty($item['options'])) {
         $itemsList .= "\n  Options: " . $item['options'];
     }
     
