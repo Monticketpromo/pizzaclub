@@ -323,21 +323,65 @@ foreach ($orderData['items'] as $item) {
     $itemsList .= " - Total: " . number_format($item['totalPrice'], 2) . "€\n\n";
 }
 
-// Corps de l'email
-$message = "NOUVELLE COMMANDE - " . $orderData['orderNumber'] . "\n\n";
-$message .= "CLIENT:\n";
-$message .= $orderData['customer']['firstName'] . " " . $orderData['customer']['lastName'] . "\n";
-$message .= "Tel: " . $orderData['customer']['phone'] . "\n";
-$message .= "Email: " . ($orderData['customer']['email'] ?: 'Non renseigné') . "\n\n";
-$message .= "MODE: " . $deliveryMode . $deliveryAddress . "\n\n";
-$message .= "COMMANDE:\n" . $itemsList . "\n";
-$message .= "Sous-total: " . number_format($orderData['subtotal'], 2) . "€\n";
-$message .= "Frais de livraison: " . number_format($orderData['deliveryFee'], 2) . "€\n";
-$message .= "TOTAL: " . number_format($orderData['total'], 2) . "€\n\n";
-$message .= "Temps estimé: " . $orderData['estimatedTime'] . "\n";
-if (!empty($orderData['customer']['comments'])) {
-    $message .= "\nCommentaire: " . $orderData['customer']['comments'];
+// Corps de l'email - FORMAT CLAIR ET LISIBLE
+$message = "═══════════════════════════════════════════\n";
+$message .= "       🍕 NOUVELLE COMMANDE 🍕\n";
+$message .= "           " . $orderData['orderNumber'] . "\n";
+$message .= "═══════════════════════════════════════════\n\n";
+
+// MODE DE RETRAIT - TRÈS VISIBLE
+$message .= "┌───────────────────────────────────────────┐\n";
+if ($orderData['customer']['deliveryMode'] === 'livraison') {
+    $message .= "│  🚗 MODE: LIVRAISON                       │\n";
+} else {
+    $message .= "│  🏪 MODE: À EMPORTER                      │\n";
 }
+$message .= "└───────────────────────────────────────────┘\n\n";
+
+// INFORMATIONS CLIENT
+$message .= "📋 CLIENT:\n";
+$message .= "───────────────────────────────────────────\n";
+$message .= "👤 " . $orderData['customer']['firstName'] . " " . $orderData['customer']['lastName'] . "\n";
+$message .= "📞 " . $orderData['customer']['phone'] . "\n";
+if (!empty($orderData['customer']['email'])) {
+    $message .= "📧 " . $orderData['customer']['email'] . "\n";
+}
+
+// ADRESSE SI LIVRAISON
+if ($orderData['customer']['deliveryMode'] === 'livraison') {
+    $message .= "\n📍 ADRESSE DE LIVRAISON:\n";
+    $message .= "───────────────────────────────────────────\n";
+    $message .= $orderData['customer']['address'] . "\n";
+    $message .= $orderData['customer']['postalCode'] . " " . $orderData['customer']['city'] . "\n";
+}
+
+// DÉTAIL DE LA COMMANDE
+$message .= "\n🍕 DÉTAIL DE LA COMMANDE:\n";
+$message .= "═══════════════════════════════════════════\n";
+$message .= $itemsList;
+$message .= "═══════════════════════════════════════════\n\n";
+
+// RÉCAPITULATIF PRIX
+$message .= "💰 RÉCAPITULATIF:\n";
+$message .= "───────────────────────────────────────────\n";
+$message .= "   Sous-total:        " . number_format($orderData['subtotal'], 2) . " €\n";
+if ($orderData['customer']['deliveryMode'] === 'livraison') {
+    $message .= "   Frais livraison:   " . number_format($orderData['deliveryFee'], 2) . " €\n";
+}
+$message .= "───────────────────────────────────────────\n";
+$message .= "   💵 TOTAL:          " . number_format($orderData['total'], 2) . " €\n";
+$message .= "───────────────────────────────────────────\n\n";
+
+// TEMPS ET COMMENTAIRES
+$message .= "⏱️  Temps estimé: " . $orderData['estimatedTime'] . "\n";
+
+if (!empty($orderData['customer']['comments'])) {
+    $message .= "\n💬 COMMENTAIRE CLIENT:\n";
+    $message .= "───────────────────────────────────────────\n";
+    $message .= $orderData['customer']['comments'] . "\n";
+}
+
+$message .= "\n═══════════════════════════════════════════\n";
 
 // Headers pour l'email restaurant (utiliser le même expéditeur que le client)
 $headers = "From: Pizza Club <commande@pizzaclub.re>\r\n";

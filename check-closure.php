@@ -29,6 +29,20 @@ function isRestaurantClosed() {
     $now = new DateTime();
     $today = $now->format('Y-m-d');
     $currentTime = $now->format('H:i:s');
+    $dayOfWeek = (int)$now->format('N'); // 1 = Lundi, 7 = Dimanche
+    
+    // ========================================
+    // JOURS DE FERMETURE RÉGULIERS
+    // ========================================
+    // Lundi = jour de fermeture (N = 1)
+    if ($dayOfWeek === 1) {
+        return [
+            'isClosed' => true,
+            'reason' => 'Jour de fermeture hebdomadaire',
+            'type' => 'weekly',
+            'message' => '🔒 Restaurant fermé le lundi. Réouverture mardi !'
+        ];
+    }
     
     // Vérifier la fermeture d'urgence
     if (isset($data['closures']['emergency']) && $data['closures']['emergency'] !== null) {
