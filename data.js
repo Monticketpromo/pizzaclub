@@ -141,7 +141,7 @@ const PIZZAS_DATA = [
         category: 'poulet',
         ingredients: ['Tomate', 'Fromage', 'Poulet péi', 'Ananas Victoria', 'Olive'],
         price33: 14.90,
-        price40: 17.90,
+        price40: 16.90,
         image: 'img/SHOOT JULIEN 2021/Hawaii.png',
         badge: 'Halal',
         isSpicy: false,
@@ -211,8 +211,8 @@ const PIZZAS_DATA = [
         name: 'Bolo',
         category: 'boeuf',
         ingredients: ['Sauce bolognaise maison', 'Mozzarella', 'Olive'],
-        price33: 14.90,
-        price40: 17.90,
+        price33: 13.90,
+        price40: 15.90,
         image: 'img/SHOOT JULIEN 2021/Bolo.png',
         isSpicy: false,
         isPremium: false
@@ -222,8 +222,8 @@ const PIZZAS_DATA = [
         name: 'Mexicaine',
         category: 'boeuf',
         ingredients: ['Tomate', 'Fromage', 'Bœuf', 'Chorizo', 'Maïs', 'Gros piment', 'Olive'],
-        price33: 14.90,
-        price40: 17.90,
+        price33: 15.90,
+        price40: 18.90,
         image: 'img/SHOOT JULIEN 2021/Mexicaine.png',
         badge: '🌶️ Forte',
         isSpicy: true,
@@ -234,8 +234,8 @@ const PIZZAS_DATA = [
         name: 'Burger',
         category: 'boeuf',
         ingredients: ['Tomate', 'Fromage', 'Bœuf', 'Oignon', 'Cheddar', 'Salade', 'Tomate fraîche', 'Olive'],
-        price33: 16.90,
-        price40: 19.90,
+        price33: 18.90,
+        price40: 20.90,
         image: 'img/SHOOT JULIEN 2021/Burger.png',
         isSpicy: false,
         isPremium: true
@@ -271,8 +271,8 @@ const PIZZAS_DATA = [
         name: 'Chorizo',
         category: 'porc',
         ingredients: ['Tomate', 'Fromage', 'Chorizo', 'Poivron', 'Olive'],
-        price33: 14.90,
-        price40: 16.90,
+        price33: 13.90,
+        price40: 15.90,
         image: 'img/SHOOT JULIEN 2021/Chorizo.png',
         badge: null,
         isSpicy: true,
@@ -296,7 +296,7 @@ const PIZZAS_DATA = [
         category: 'porc',
         ingredients: ['Tomate', 'Fromage', 'Lardon', 'Pomme de terre', 'Champignon frais', 'Olive'],
         price33: 14.90,
-        price40: 16.90,
+        price40: 17.90,
         image: 'img/SHOOT JULIEN 2021/Paysanne.png',
         badge: null,
         isSpicy: false,
@@ -308,7 +308,7 @@ const PIZZAS_DATA = [
         category: 'porc',
         ingredients: ['Tomate', 'Fromage', 'Lardon', 'Oignon', 'Champignon frais', 'Olive'],
         price33: 14.90,
-        price40: 16.90,
+        price40: 17.90,
         image: 'img/SHOOT JULIEN 2021/Fermiere.png',
         badge: null,
         isSpicy: false,
@@ -356,8 +356,8 @@ const PIZZAS_DATA = [
         name: 'Pizza Club',
         category: 'porc',
         ingredients: ['Tomate', 'Fromage', 'Chorizo', 'Merguez poulet', 'Lardon', 'Champignon frais', 'Olive'],
-        price33: 16.90,
-        price40: 19.90,
+        price33: 15.90,
+        price40: 17.90,
         image: 'img/SHOOT JULIEN 2021/Pizza Club.png',
         badge: 'Signature',
         isSpicy: true,
@@ -385,8 +385,8 @@ const PIZZAS_DATA = [
         name: 'Margherita',
         category: 'vegetarienne',
         ingredients: ['Tomate', 'Fromage', 'Olive'],
-        price33: 13.90,
-        price40: 15.90,
+        price33: 10.90,
+        price40: 12.90,
         image: 'img/SHOOT JULIEN 2021/Margherita.png',
         badge: 'Classique',
         isSpicy: false,
@@ -471,8 +471,8 @@ const PIZZAS_DATA = [
         name: 'Crevette',
         category: 'mer',
         ingredients: ['Tomate', 'Fromage', 'Crevette', 'Citron', 'Olive'],
-        price33: 14.90,
-        price40: 17.90,
+        price33: 13.90,
+        price40: 15.90,
         image: 'img/SHOOT JULIEN 2021/Crevette.png',
         badge: null,
         isSpicy: false,
@@ -742,7 +742,7 @@ const DESSERTS_DATA = [
         id: 403,
         name: 'Tiramisu',
         description: 'Tiramisu maison',
-        price: 3.90,
+        price: 4.90,
         image: 'img/TIRAMISU_CHOCO_SPECULOS.jpg',
         category: 'desserts'
     },
@@ -802,13 +802,13 @@ const EXTRAS = {
         XL: { name: 'XL', price: 3.00 } // +3€ pour XL
     },
     patesBases: {
-        classique: { name: 'Classique', price: 0 },
-        ricottaEpinard: { name: 'Ricotta Épinard', price: 0 },
-        gnocchi: { name: 'Gnocchi', price: 0 }
+        classique: { name: 'Classique', price: 2 },
+        ricottaEpinard: { name: 'Ricotta Épinard', price: 2 },
+        gnocchi: { name: 'Gnocchi', price: 2 }
     },
     patesSupplements: {
-        L: { name: 'Supplément L', price: 1.50 },
-        XL: { name: 'Supplément XL', price: 2.00 }
+        L: { name: 'Supplément L', price: 1.00 },
+        XL: { name: 'Supplément XL', price: 1.50 }
     },
     bases: {
         tomate: { name: 'Sauce Tomate', price: 0 },
@@ -895,10 +895,10 @@ const EXTRAS = {
 // DONNÉES DES BOISSONS
 // ========================================
 const BOISSONS_DATA = [
-    { id: 1, name: 'Coca-Cola', size: '33cl', price: 2.50 },
-    { id: 2, name: 'Thé Pêche', size: '33cl', price: 2.50 },
-    { id: 3, name: 'Thé Melon', size: '33cl', price: 2.50 },
-    { id: 4, name: 'Sambo', size: '33cl', price: 2.50 },
-    { id: 5, name: 'Edena', size: '33cl', price: 2.50 },
-    { id: 6, name: 'Cilaos', size: '33cl', price: 2.50 }
+    { id: 1, name: 'Coca-Cola', size: '33cl', price: 2.00 },
+    { id: 2, name: 'Thé Pêche', size: '33cl', price: 2.00 },
+    { id: 3, name: 'Thé Melon', size: '33cl', price: 2.00 },
+    { id: 4, name: 'Sambo', size: '33cl', price: 2.00 },
+    { id: 5, name: 'Edena', size: '33cl', price: 2.00 },
+    { id: 6, name: 'Cilaos', size: '33cl', price: 2.00 }
 ];
