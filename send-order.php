@@ -16,11 +16,20 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $jsonData = file_get_contents('php://input');
 $orderData = json_decode($jsonData, true);
 
-// DEBUG - Logger TOUTES les données reçues
+// DEBUG - Logger TOUTES les données reçues dans un fichier
 error_log("=== DÉBUT COMMANDE ===");
 error_log("Données JSON complètes reçues:");
 error_log(print_r($orderData, true));
 error_log("=== FIN DEBUG ===");
+
+// DEBUG FICHIER - Sauvegarder aussi dans un fichier temporaire
+file_put_contents(
+    __DIR__ . '/debug-order.txt',
+    "=== NOUVELLE COMMANDE " . date('Y-m-d H:i:s') . " ===\n" . 
+    print_r($orderData, true) . 
+    "\n\n",
+    FILE_APPEND
+);
 
 if (!$orderData) {
     http_response_code(400);
@@ -468,25 +477,70 @@ if (!empty($orderData['customer']['email'])) {
 }
 
 // ========================================
-// ENVOI SMS VIA EMAIL SFR (GRATUIT & INSTANTANÉ)
+// ENVOI SMS VIA BREVO (SENDINBLUE)
 // ========================================
 $smsSent = false;
 
 try {
-    // Message SMS court (limité à 160 caractères)
-    $smsMessage = "COMMANDE {$orderData['orderNumber']}\n";
-    $smsMessage .= "{$orderData['customer']['firstName']} {$orderData['customer']['lastName']}\n";
-    $smsMessage .= "Tel: {$orderData['customer']['phone']}\n";
-    $smsMessage .= ($orderData['customer']['deliveryMode'] === 'livraison' ? 'LIVRAISON' : 'A EMPORTER') . "\n";
-    $smsMessage .= "TOTAL: " . number_format($orderData['total'], 2) . " EUR";
-    
-    $smsHeaders = "From: Pizza Club <commande@pizzaclub.re>\r\n";
-    $smsHeaders .= "Content-Type: text/plain; charset=UTF-8\r\n";
-    
-    $smsSent = mail($smsEmail, '', $smsMessage, $smsHeaders);
-    error_log("SMS via email - To: $smsEmail, Sent: " . ($smsSent ? 'YES' : 'NO'));
+    if (file_exists(__DIR__ . '/brevo-config.php')) {
+        $brevoConfig = require __DIR__ . '/brevo-config.php';
+        $brevoApiKey = $brevoConfig['api_key'];
+        $brevoSender = $brevoConfig['sender_name'];
+        $brevoRecipient = $brevoConfig['recipient_number'];
+        
+        // Message SMS court (160 caractères max)
+        $smsMessage = "COMMANDE {$orderData['orderNumber']}\n";
+        $smsMessage .= "{$orderData['customer']['firstName']} {$orderData['customer']['lastName']}\n";
+        $smsMessage .= "Tel: {$orderData['customer']['phone']}\n";
+        $smsMessage .= ($orderData['customer']['deliveryMode'] === 'livraison' ? 'LIVRAISON' : 'A EMPORTER') . "\n";
+        $smsMessage .= "TOTAL: " . number_format($orderData['total'], 2) . " EUR";
+        
+        // API Brevo
+        $brevoUrl = "https://api.brevo.com/v3/transactionalSMS/sms";
+        
+        $brevoData = [
+            'sender' => $brevoSender,
+            'recipient' => $brevoRecipient,
+            'content' => $smsMessage,
+            'type' => 'transactional'
+        ];
+        
+        $ch = curl_init($brevoUrl);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($brevoData));
+        curl_setopt($ch, CURLOPT_HTTPHEADER, [
+            'api-key: ' . $brevoApiKey,
+            'Content-Type: application/json',
+            'Accept: application/json'
+        ]);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        
+        $brevoResponse = curl_exec($ch);
+        $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
+        curl_close($ch);
+        
+        $smsSent = ($httpCode === 201 || $httpCode === 200);
+        
+        error_log("Brevo SMS:");
+        error_log("  To: $brevoRecipient");
+        error_log("  HTTP Code: $httpCode");
+        error_log("  Sent: " . ($smsSent ? 'YES' : 'NO'));
+        
+        if ($curlError) {
+            error_log("  CURL Error: $curlError");
+        }
+        
+        if (!$smsSent) {
+            error_log("  API Response: " . $brevoResponse);
+        } else {
+            error_log("  ✓ SMS Brevo sent successfully!");
+        }
+    } else {
+        error_log("Brevo non configuré - fichier brevo-config.php introuvable");
+    }
 } catch (Exception $e) {
-    error_log("ERREUR SMS via email: " . $e->getMessage());
+    error_log("ERREUR Brevo SMS: " . $e->getMessage());
 }
 
 // ========================================
