@@ -3597,8 +3597,23 @@ function displayDeliveryTimeInfo() {
         console.log('🕐 Heure estimée:', estimatedHour + 'h' + estimatedMinutes);
         
         const modeLabel = mode === 'livraison' ? 'livrée' : 'prête';
+        const icon = mode === 'livraison' ? '🛵' : '🏃';
+        const time = mode === 'livraison' ? '60 minutes' : '20 minutes';
+        const label = mode === 'livraison' ? 'Livraison' : 'À emporter';
         
         displayDiv.innerHTML = `
+            <!-- Cadre jaune informatif -->
+            <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span style="font-size: 24px;">${icon}</span>
+                    <div style="flex: 1;">
+                        <div style="font-size: 14px; font-weight: bold; color: #856404; margin-bottom: 3px;">${label} - Environ ${time}</div>
+                        <div style="font-size: 11px; color: #856404; opacity: 0.85;">⏱️ Délai indicatif selon l'affluence</div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Cadre bleu avec heure estimée -->
             <div style="display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-bolt" style="font-size: 2rem; color: #FF9800;"></i>
                 <div>
@@ -3664,58 +3679,9 @@ function updateDeliveryMode() {
 
 // Afficher info délai de préparation/livraison
 function showDeliveryTimeInfo(mode) {
-    // Supprimer l'ancien message s'il existe
-    const existingInfo = document.querySelector('.delivery-time-info');
-    if (existingInfo) {
-        existingInfo.remove();
-    }
-    
-    // Si pas de mode défini, ne rien afficher
-    if (!mode) return;
-    
-    // Créer le nouveau message
-    const timeInfo = document.createElement('div');
-    timeInfo.className = 'delivery-time-info';
-    timeInfo.style.cssText = `
-        background: #fff3cd !important;
-        border: 2px solid #ffc107 !important;
-        border-radius: 8px;
-        padding: 15px 20px;
-        margin: 20px 0;
-        font-size: 15px;
-        color: #856404 !important;
-        display: block !important;
-        position: relative;
-        z-index: 100;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    `;
-    
-    const icon = mode === 'livraison' ? '🛵' : '🏃';
-    const time = mode === 'livraison' ? '60 minutes' : '20 minutes';
-    const label = mode === 'livraison' ? 'Livraison' : 'À emporter';
-    
-    timeInfo.innerHTML = `
-        <div style="display: flex; align-items: center; gap: 15px;">
-            <span style="font-size: 32px;">${icon}</span>
-            <div>
-                <div style="font-size: 16px; font-weight: bold; margin-bottom: 5px;">${label} - Environ ${time}</div>
-                <div style="font-size: 13px; opacity: 0.9;">⏱️ Ce délai est indicatif et peut varier selon l'affluence et les commandes en cours.</div>
-            </div>
-        </div>
-    `;
-    
-    // Chercher la div .delivery-options DANS le checkout (#step1), pas celle de la modal d'heure
-    const deliveryOptions = document.querySelector('#step1 .delivery-options');
-    
-    if (deliveryOptions) {
-        deliveryOptions.insertAdjacentElement('afterend', timeInfo);
-        console.log('✅ Message de délai affiché:', mode, time);
-        
-        // Forcer un reflow pour être sûr que c'est visible
-        timeInfo.offsetHeight;
-    } else {
-        console.error('❌ Impossible de trouver #step1 .delivery-options');
-    }
+    // Ce message est maintenant intégré directement dans displayDeliveryTimeInfo()
+    // Cette fonction n'est plus nécessaire mais on la garde pour compatibilité
+    console.log('✅ showDeliveryTimeInfo appelé avec mode:', mode);
 }
 
 function validateCustomerForm() {
