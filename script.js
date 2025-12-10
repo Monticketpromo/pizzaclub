@@ -3601,23 +3601,6 @@ function displayDeliveryTimeInfo() {
                 </div>
             </div>
         `;
-        
-        console.log('🕐 Heure actuelle:', now.getHours() + 'h' + now.getMinutes());
-        console.log('🕐 Heure estimée:', estimatedHour + 'h' + estimatedMinutes);
-        
-        const modeLabel = mode === 'livraison' ? 'livrée' : 'prête';
-        
-        displayDiv.innerHTML = yellowBox + `
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <i class="fas fa-bolt" style="font-size: 2rem; color: #FF9800;"></i>
-                <div>
-                    <p style="margin: 0; font-weight: 600;">Commande ${modeLabel} dès que possible</p>
-                    <p style="margin: 5px 0 0 0; color: #666;">
-                        Préparation immédiate - Estimée vers <strong>${estimatedHour}h${estimatedMinutes < 10 ? '0' + estimatedMinutes : estimatedMinutes}</strong>
-                    </p>
-                </div>
-            </div>
-        `;
     }
 }
 
