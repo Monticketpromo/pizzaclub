@@ -3704,8 +3704,8 @@ function showDeliveryTimeInfo(mode) {
         </div>
     `;
     
-    // Chercher la div .delivery-options
-    const deliveryOptions = document.querySelector('.delivery-options');
+    // Chercher la div .delivery-options DANS le checkout (#step1), pas celle de la modal d'heure
+    const deliveryOptions = document.querySelector('#step1 .delivery-options');
     
     if (deliveryOptions) {
         deliveryOptions.insertAdjacentElement('afterend', timeInfo);
@@ -3714,7 +3714,7 @@ function showDeliveryTimeInfo(mode) {
         // Forcer un reflow pour être sûr que c'est visible
         timeInfo.offsetHeight;
     } else {
-        console.error('❌ Impossible de trouver .delivery-options');
+        console.error('❌ Impossible de trouver #step1 .delivery-options');
     }
 }
 
