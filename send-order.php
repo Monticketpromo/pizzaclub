@@ -511,12 +511,25 @@ $smsSent = false;
 try {
     error_log("======= TENTATIVE ENVOI SMS BREVO =======");
     
-    if (!file_exists(__DIR__ . '/brevo-config.php')) {
-        error_log("ERREUR: brevo-config.php introuvable");
+    // Chercher le fichier config dans plusieurs emplacements
+    $configPaths = [
+        __DIR__ . '/config/brevo-config.php',  // Dossier config (ignoré par Git)
+        __DIR__ . '/brevo-config.php'          // Racine (fallback)
+    ];
+    
+    $configFound = false;
+    foreach ($configPaths as $configPath) {
+        if (file_exists($configPath)) {
+            error_log("✓ Config trouvé: $configPath");
+            $brevoConfig = require $configPath;
+            $configFound = true;
+            break;
+        }
+    }
+    
+    if (!$configFound) {
+        error_log("ERREUR: brevo-config.php introuvable dans config/ ou racine");
     } else {
-        error_log("✓ Fichier brevo-config.php trouvé");
-        
-        $brevoConfig = require __DIR__ . '/brevo-config.php';
         $brevoApiKey = $brevoConfig['api_key'];
         $brevoSender = $brevoConfig['sender_name'];
         $brevoRecipient = $brevoConfig['recipient_number'];
