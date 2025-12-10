@@ -167,7 +167,7 @@ function setupModalScrollLock() {
 }
 
 function initApp() {
-    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211');
+    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211b');
     updateCartUI();
     
     // Charger les préférences de livraison depuis le localStorage
@@ -3787,43 +3787,58 @@ function displayOrderSummary() {
             // PIZZAS
             if (item.type === 'pizza') {
                 const sizeLabel = c.size === 'moyenne' ? '33cm' : c.size === 'grande' ? '40cm' : c.size;
-                customizationHTML = `<br><small>📏 TAILLE: ${sizeLabel}</small>`;
+                customizationHTML = `<br><small>📏 TAILLE: ${sizeLabel || '(non spécifiée)'}</small>`;
                 
-                if (c.base) {
-                    customizationHTML += `<br><small>🍕 BASE: ${c.base}</small>`;
+                // BASE - toujours afficher
+                const baseLabel = c.base ? (c.base === 'creme' ? 'Crème' : c.base === 'tomate' ? 'Tomate' : c.base) : '(non spécifiée)';
+                customizationHTML += `<br><small>🍕 BASE: ${baseLabel}</small>`;
+                
+                // RETIRER - toujours afficher
+                const removed = c.removedIngredients || c.ingredients?.removed || c.removed || [];
+                if (removed.length > 0) {
+                    customizationHTML += `<br><small style="color: #dc3545;">❌ RETIRER: ${removed.join(', ')}</small>`;
+                } else {
+                    customizationHTML += `<br><small>❌ RETIRER: (aucun)</small>`;
                 }
                 
-                if (c.ingredients?.removed?.length > 0) {
-                    customizationHTML += `<br><small style="color: #dc3545;">❌ RETIRER: ${c.ingredients.removed.join(', ')}</small>`;
-                }
-                
-                if (c.ingredients?.added?.length > 0) {
-                    customizationHTML += `<br><small style="color: #28a745;">➕ AJOUTER: ${c.ingredients.added.join(', ')}</small>`;
+                // AJOUTER - toujours afficher
+                const added = c.addedIngredients || c.ingredients?.added || c.added || [];
+                if (added.length > 0) {
+                    customizationHTML += `<br><small style="color: #28a745;">➕ AJOUTER: ${added.join(', ')}</small>`;
+                } else {
+                    customizationHTML += `<br><small>➕ AJOUTER: (aucun)</small>`;
                 }
             }
             
             // PÂTES
             else if (item.type === 'pate') {
                 const sizeLabel = c.size === 'L' ? 'Large' : c.size === 'XL' ? 'XL' : c.size;
-                customizationHTML = `<br><small>📏 TAILLE: ${sizeLabel}</small>`;
+                customizationHTML = `<br><small>📏 TAILLE: ${sizeLabel || '(non spécifiée)'}</small>`;
                 
-                if (c.base) {
-                    customizationHTML += `<br><small>🍝 BASE: ${c.base}</small>`;
-                }
+                // BASE - toujours afficher
+                const baseLabel = c.base || '(non spécifiée)';
+                customizationHTML += `<br><small>🍝 BASE: ${baseLabel}</small>`;
                 
-                if (c.supplements?.length > 0) {
-                    customizationHTML += `<br><small style="color: #28a745;">➕ SUPPLÉMENTS: ${c.supplements.join(', ')}</small>`;
+                // SUPPLÉMENTS - toujours afficher
+                const supplements = c.supplements || [];
+                if (supplements.length > 0) {
+                    customizationHTML += `<br><small style="color: #28a745;">➕ SUPPLÉMENTS: ${supplements.join(', ')}</small>`;
+                } else {
+                    customizationHTML += `<br><small>➕ SUPPLÉMENTS: (aucun)</small>`;
                 }
             }
             
             // SALADES
             else if (item.type === 'salade') {
-                if (c.size) {
-                    customizationHTML = `<br><small>📏 TAILLE: ${c.size}</small>`;
-                }
+                const sizeLabel = c.size || '(non spécifiée)';
+                customizationHTML = `<br><small>📏 TAILLE: ${sizeLabel}</small>`;
                 
-                if (c.supplements?.length > 0) {
-                    customizationHTML += `<br><small style="color: #28a745;">➕ SUPPLÉMENTS: ${c.supplements.join(', ')}</small>`;
+                // SUPPLÉMENTS - toujours afficher
+                const supplements = c.supplements || [];
+                if (supplements.length > 0) {
+                    customizationHTML += `<br><small style="color: #28a745;">➕ SUPPLÉMENTS: ${supplements.join(', ')}</small>`;
+                } else {
+                    customizationHTML += `<br><small>➕ SUPPLÉMENTS: (aucun)</small>`;
                 }
             }
             

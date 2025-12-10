@@ -8,6 +8,7 @@ function getClientEmailTemplate($orderData) {
     <!DOCTYPE html>
     <html lang="fr">
     <head>
+        <!-- EMAIL VERSION: 20251211b -->
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Confirmation de commande</title>
