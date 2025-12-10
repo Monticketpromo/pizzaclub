@@ -267,30 +267,29 @@ foreach ($orderData['items'] as $item) {
             $sizeLabel = $item['size'];
         }
         
-        if (!empty($sizeLabel)) {
-            $itemsList .= "📏 TAILLE: " . $sizeLabel . "\n";
-        }
+        // TAILLE - Toujours afficher
+        $itemsList .= "📏 TAILLE: " . (!empty($sizeLabel) ? $sizeLabel : "(non spécifiée)") . "\n";
         
         // ── BASE ──
         $baseLabel = '';
         
-        // Base pour PIZZAS
-        if ($item['type'] === 'pizza' && !empty($custom['base'])) {
-            $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
+        // BASE - Toujours afficher selon le type de produit
+        if ($item['type'] === 'pizza') {
+            $baseLabel = !empty($custom['base']) ? ($custom['base'] === 'creme' ? 'Crème' : 'Tomate') : '(non spécifiée)';
             $itemsList .= "🍕 BASE: " . $baseLabel . "\n";
         }
-        // Base pour PÂTES
-        elseif ($item['type'] === 'pate' && !empty($custom['base'])) {
-            $itemsList .= "🍝 BASE: " . $custom['base'] . "\n";
+        elseif ($item['type'] === 'pate') {
+            $baseLabel = !empty($custom['base']) ? $custom['base'] : '(non spécifiée)';
+            $itemsList .= "🍝 BASE: " . $baseLabel . "\n";
         }
-        // Base pour ROLLS et BUNS
-        elseif (($item['type'] === 'roll' || $item['type'] === 'bun') && !empty($custom['base'])) {
-            $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
+        elseif ($item['type'] === 'roll' || $item['type'] === 'bun') {
+            $baseLabel = !empty($custom['base']) ? ($custom['base'] === 'creme' ? 'Crème' : 'Tomate') : '(non spécifiée)';
             $itemsList .= "🌯 BASE: " . $baseLabel . "\n";
         }
         
-        // ── INGRÉDIENTS RETIRÉS ──
+        // ── INGRÉDIENTS RETIRÉS - Toujours afficher ──
         $removedList = $custom['removed'] ?? $custom['removedIngredients'] ?? [];
+        $itemsList .= "❌ RETIRER: ";
         if (!empty($removedList) && is_array($removedList) && count($removedList) > 0) {
             $names = [
                 'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
@@ -311,11 +310,15 @@ foreach ($orderData['items'] as $item) {
                 }
                 return $names[$key] ?? ucfirst($key);
             }, $removedList);
-            $itemsList .= "❌ RETIRER: " . implode(', ', $removedNames) . "\n";
+            $itemsList .= implode(', ', $removedNames);
+        } else {
+            $itemsList .= "(aucun)";
         }
+        $itemsList .= "\n";
         
-        // ── INGRÉDIENTS AJOUTÉS ──
+        // ── INGRÉDIENTS AJOUTÉS - Toujours afficher ──
         $addedList = $custom['added'] ?? $custom['addedIngredients'] ?? [];
+        $itemsList .= "➕ AJOUTER: ";
         if (!empty($addedList) && is_array($addedList) && count($addedList) > 0) {
             $names = [
                 'champignons' => 'Champignons', 'olives' => 'Olives', 'poivrons' => 'Poivrons',
@@ -336,8 +339,11 @@ foreach ($orderData['items'] as $item) {
                 }
                 return $names[$key] ?? ucfirst($key);
             }, $addedList);
-            $itemsList .= "➕ AJOUTER: " . implode(', ', $addedNames) . "\n";
+            $itemsList .= implode(', ', $addedNames);
+        } else {
+            $itemsList .= "(aucun)";
         }
+        $itemsList .= "\n";
         
         // ── SUPPLÉMENTS (pour pâtes et salades) ──
         if (!empty($custom['supplements']) && is_array($custom['supplements']) && count($custom['supplements']) > 0) {

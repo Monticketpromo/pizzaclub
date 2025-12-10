@@ -17,7 +17,7 @@ function getClientEmailTemplate($orderData) {
             .header { background-color: #FF0000; padding: 30px; text-align: center; }
             .header img { max-width: 200px; height: auto; }
             .content { padding: 30px; color: #333333; line-height: 1.6; }
-            .order-number { background-color: #fff3cd; border-left: 4px solid: #ffc107; padding: 15px; margin: 20px 0; font-size: 16px; font-weight: bold; }
+            .order-number { background-color: #fff3cd; border-left: 4px solid #ffc107; padding: 15px; margin: 20px 0; font-size: 16px; font-weight: bold; }
             .order-details { background-color: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0; }
             .order-item { padding: 10px 0; border-bottom: 1px solid #e0e0e0; }
             .order-item:last-child { border-bottom: none; }
@@ -33,7 +33,7 @@ function getClientEmailTemplate($orderData) {
     <body>
         <div class="container">
             <div class="header">
-                <img src="https://nunu974-dev.github.io/pizzaclub/img/New%20logo%20blanc%202022.png" alt="Pizza Club Logo">
+                <img src="https://nunu974-dev.github.io/pizzaclub/img/New_logo_blanc_2022.png" alt="Pizza Club Logo">
             </div>
             
             <div class="content">
