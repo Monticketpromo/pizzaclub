@@ -254,8 +254,8 @@ foreach ($orderData['items'] as $item) {
     // ===== PIZZAS, PÂTES, SALADES INDIVIDUELLES =====
     else {
         // ── TAILLE ──
+        $sizeLabel = '';
         if (!empty($custom['size'])) {
-            $sizeLabel = '';
             switch($custom['size']) {
                 case 'moyenne': $sizeLabel = '33cm'; break;
                 case 'grande': $sizeLabel = '40cm'; break;
@@ -263,32 +263,30 @@ foreach ($orderData['items'] as $item) {
                 case 'XL': $sizeLabel = 'XL'; break;
                 default: $sizeLabel = $custom['size'];
             }
-            $itemsList .= "📏 TAILLE: " . $sizeLabel . "\n";
         } elseif (!empty($item['size'])) {
-            $itemsList .= "📏 TAILLE: " . $item['size'] . "\n";
+            $sizeLabel = $item['size'];
+        }
+        
+        if (!empty($sizeLabel)) {
+            $itemsList .= "📏 TAILLE: " . $sizeLabel . "\n";
         }
         
         // ── BASE ──
-        $baseDisplayed = false;
+        $baseLabel = '';
         
         // Base pour PIZZAS
         if ($item['type'] === 'pizza' && !empty($custom['base'])) {
             $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
             $itemsList .= "🍕 BASE: " . $baseLabel . "\n";
-            $baseDisplayed = true;
         }
-        
         // Base pour PÂTES
-        if ($item['type'] === 'pate' && !empty($custom['base'])) {
+        elseif ($item['type'] === 'pate' && !empty($custom['base'])) {
             $itemsList .= "🍝 BASE: " . $custom['base'] . "\n";
-            $baseDisplayed = true;
         }
-        
         // Base pour ROLLS et BUNS
-        if (($item['type'] === 'roll' || $item['type'] === 'bun') && !empty($custom['base'])) {
+        elseif (($item['type'] === 'roll' || $item['type'] === 'bun') && !empty($custom['base'])) {
             $baseLabel = $custom['base'] === 'creme' ? 'Crème' : 'Tomate';
             $itemsList .= "🌯 BASE: " . $baseLabel . "\n";
-            $baseDisplayed = true;
         }
         
         // ── INGRÉDIENTS RETIRÉS ──

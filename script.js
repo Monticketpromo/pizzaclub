@@ -3561,13 +3561,32 @@ function displayDeliveryTimeInfo() {
     
     console.log('displayDeliveryTimeInfo - deliveryTimeMode:', deliveryTimeMode, 'scheduledDeliveryDate:', scheduledDeliveryDate, 'scheduledDeliveryHour:', scheduledDeliveryHour);
     
+    // Récupérer le mode de livraison pour le cadre jaune
+    const mode = document.querySelector('input[name="deliveryMode"]:checked')?.value || 'livraison';
+    const icon = mode === 'livraison' ? '🛵' : '🏃';
+    const time = mode === 'livraison' ? '60 minutes' : '20 minutes';
+    const label = mode === 'livraison' ? 'Livraison' : 'À emporter';
+    
+    // Cadre jaune (toujours affiché dans les 2 modes)
+    const yellowBox = `
+        <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <span style="font-size: 24px;">${icon}</span>
+                <div style="flex: 1;">
+                    <div style="font-size: 14px; font-weight: bold; color: #856404; margin-bottom: 3px;">${label} - Environ ${time}</div>
+                    <div style="font-size: 11px; color: #856404; opacity: 0.85;">⏱️ Délai indicatif selon l'affluence</div>
+                </div>
+            </div>
+        </div>
+    `;
+    
     if (deliveryTimeMode === 'programmee' && scheduledDeliveryDate && scheduledDeliveryHour !== null) {
-        // Formater la date
+        // Mode programmée
         const dateParts = scheduledDeliveryDate.split('-');
         const formattedDate = `${dateParts[2]}/${dateParts[1]}/${dateParts[0]}`;
         const formattedHour = `${scheduledDeliveryHour}h00`;
         
-        displayDiv.innerHTML = `
+        displayDiv.innerHTML = yellowBox + `
             <div style="display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-calendar-check" style="font-size: 2rem; color: #4CAF50;"></i>
                 <div>
@@ -3579,16 +3598,12 @@ function displayDeliveryTimeInfo() {
             </div>
         `;
     } else {
-        // Mode maintenant - Calculer l'heure estimée de livraison
+        // Mode maintenant - Calculer l'heure estimée
         const now = new Date();
-        
-        // Récupérer le mode de livraison pour calculer le bon délai
-        const mode = document.querySelector('input[name="deliveryMode"]:checked')?.value || 'livraison';
-        const delayMinutes = mode === 'livraison' ? 60 : 20; // 60 min livraison, 20 min emporter
+        const delayMinutes = mode === 'livraison' ? 60 : 20;
         
         console.log('🕐 Calcul heure estimée - Mode:', mode, '| Délai:', delayMinutes, 'min');
         
-        // Calculer l'heure estimée
         const estimatedTime = new Date(now.getTime() + delayMinutes * 60000);
         const estimatedHour = estimatedTime.getHours();
         const estimatedMinutes = estimatedTime.getMinutes();
@@ -3597,23 +3612,8 @@ function displayDeliveryTimeInfo() {
         console.log('🕐 Heure estimée:', estimatedHour + 'h' + estimatedMinutes);
         
         const modeLabel = mode === 'livraison' ? 'livrée' : 'prête';
-        const icon = mode === 'livraison' ? '🛵' : '🏃';
-        const time = mode === 'livraison' ? '60 minutes' : '20 minutes';
-        const label = mode === 'livraison' ? 'Livraison' : 'À emporter';
         
-        displayDiv.innerHTML = `
-            <!-- Cadre jaune informatif -->
-            <div style="background: #fff3cd; border: 2px solid #ffc107; border-radius: 8px; padding: 12px 15px; margin-bottom: 15px;">
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 24px;">${icon}</span>
-                    <div style="flex: 1;">
-                        <div style="font-size: 14px; font-weight: bold; color: #856404; margin-bottom: 3px;">${label} - Environ ${time}</div>
-                        <div style="font-size: 11px; color: #856404; opacity: 0.85;">⏱️ Délai indicatif selon l'affluence</div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Cadre bleu avec heure estimée -->
+        displayDiv.innerHTML = yellowBox + `
             <div style="display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-bolt" style="font-size: 2rem; color: #FF9800;"></i>
                 <div>
