@@ -13,17 +13,37 @@ echo "<hr>";
 
 // 1. Vérifier si le fichier config existe
 echo "<h2>1. Vérification fichier config</h2>";
-if (file_exists(__DIR__ . '/brevo-config.php')) {
-    echo "✅ brevo-config.php trouvé<br>";
-    $brevoConfig = require __DIR__ . '/brevo-config.php';
-    echo "✅ Config chargée<br>";
-    echo "Sender: " . $brevoConfig['sender_name'] . "<br>";
-    echo "Recipient: " . $brevoConfig['recipient_number'] . "<br>";
-    echo "API Key: " . substr($brevoConfig['api_key'], 0, 20) . "...<br>";
-} else {
-    echo "❌ brevo-config.php INTROUVABLE<br>";
-    die("STOP: Upload d'abord brevo-config.php sur le serveur");
+
+// Chercher dans plusieurs emplacements
+$configPaths = [
+    __DIR__ . '/config/brevo-config.php',  // Dossier config (priorité)
+    __DIR__ . '/brevo-config.php'          // Racine (fallback)
+];
+
+$configFound = false;
+$configPath = '';
+
+foreach ($configPaths as $path) {
+    if (file_exists($path)) {
+        echo "✅ Config trouvé: " . basename(dirname($path)) . "/" . basename($path) . "<br>";
+        $brevoConfig = require $path;
+        $configFound = true;
+        $configPath = $path;
+        break;
+    }
 }
+
+if (!$configFound) {
+    echo "❌ brevo-config.php INTROUVABLE dans :<br>";
+    echo "- config/brevo-config.php<br>";
+    echo "- brevo-config.php (racine)<br>";
+    die("STOP: Upload brevo-config.php dans le dossier config/");
+}
+
+echo "✅ Config chargée depuis: $configPath<br>";
+echo "Sender: " . $brevoConfig['sender_name'] . "<br>";
+echo "Recipient: " . $brevoConfig['recipient_number'] . "<br>";
+echo "API Key: " . substr($brevoConfig['api_key'], 0, 20) . "...<br>";
 
 // 2. Vérifier CURL
 echo "<h2>2. Vérification CURL</h2>";
