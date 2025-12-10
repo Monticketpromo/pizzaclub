@@ -447,9 +447,11 @@ if (!empty($orderData['customer']['comments'])) {
     $message .= $orderData['customer']['comments'] . "\n";
 }
 
-$message .= "\n═══════════════════════════════════════════\n";
+// Utiliser le template HTML pour l'email restaurant
+require_once __DIR__ . '/email-template-kitchen.php';
+$message = getKitchenEmailTemplate($orderData);
 
-// Headers pour l'email restaurant (utiliser le même expéditeur que le client)
+// Headers pour l'email restaurant - HTML cette fois
 $headers = "From: Pizza Club <commande@pizzaclub.re>\r\n";
 $headers .= "Reply-To: " . ($orderData['customer']['email'] ?: 'commande@pizzaclub.re') . "\r\n";
 $headers .= "Return-Path: commande@pizzaclub.re\r\n";
@@ -457,7 +459,7 @@ $headers .= "X-Mailer: PHP/" . phpversion() . "\r\n";
 $headers .= "X-Priority: 1\r\n";
 $headers .= "Importance: High\r\n";
 $headers .= "MIME-Version: 1.0\r\n";
-$headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+$headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
 // Envoi de l'email au restaurant
 $emailSent = mail($to, $subject, $message, $headers);
