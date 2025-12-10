@@ -167,7 +167,7 @@ function setupModalScrollLock() {
 }
 
 function initApp() {
-    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211b');
+    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211c');
     updateCartUI();
     
     // Charger les préférences de livraison depuis le localStorage
@@ -1592,6 +1592,7 @@ function addCustomizedToCart() {
 
     const cartItem = {
         id: Date.now(),
+        type: 'pizza',
         pizzaId: currentPizza.id,
         name: currentPizza.name,
         basePrice: currentPizza.price33,
@@ -1802,13 +1803,13 @@ function addCustomizedAmericaineToCart() {
 
     const cartItem = {
         id: Date.now(),
+        type: 'pizza',
         pizzaId: currentAmericaine.id,
         name: currentAmericaine.name,
         basePrice: basePrice,
         quantity: quantity,
         customization: customization,
-        totalPrice: basePrice * quantity,
-        type: 'americaine'
+        totalPrice: basePrice * quantity
     };
 
     cart.push(cartItem);
