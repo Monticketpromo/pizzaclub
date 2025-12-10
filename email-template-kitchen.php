@@ -13,68 +13,68 @@ function getKitchenEmailTemplate($orderData) {
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Nouvelle commande</title>
         <style>
-            body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #ffffff; }
+            body { margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #f4f4f4; }
             .container { max-width: 900px; margin: 0 auto; background-color: #ffffff; }
-            .header { background-color: #000000; padding: 25px; text-align: center; color: white; }
-            .header h1 { margin: 0; font-size: 28px; }
+            .header { background-color: #FF0000; padding: 25px; text-align: center; color: white; }
+            .header h1 { margin: 0; font-size: 28px; color: white; }
             .mode-badge { background-color: #FFC107; color: #000; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; margin: 0; }
-            .content { padding: 30px; color: #000000; background-color: #ffffff; }
-            .section { margin: 25px 0; padding: 20px; background-color: #ffffff; border: 2px solid #000; }
-            .section h3 { margin-top: 0; color: #000; font-size: 20px; }
-            .client-info { font-size: 16px; line-height: 2; color: #000; }
+            .content { padding: 30px; color: #333333; background-color: #ffffff; }
+            .section { margin: 25px 0; padding: 20px; background-color: #f8f9fa; border: 2px solid #e0e0e0; }
+            .section h3 { margin-top: 0; color: #FF0000; font-size: 20px; }
+            .client-info { font-size: 16px; line-height: 2; color: #333; }
             .client-info strong { color: #000; }
-            .order-item { background-color: #ffffff !important; border: 3px solid #000; padding: 20px; margin: 20px 0; }
-            .order-item-header { font-size: 20px; font-weight: bold; color: #ffffff !important; background-color: #000000 !important; margin: -20px -20px 15px -20px; padding: 15px 20px; border: 2px solid #000; }
-            .item-detail { margin: 10px 0; padding: 10px; background-color: #ffffff !important; border: 1px solid #000; }
-            .item-detail-label { display: inline-block; min-width: 180px; font-weight: bold; color: #000 !important; font-size: 15px; }
-            .item-detail-value { color: #000 !important; font-size: 15px; }
-            .empty-value { color: #666 !important; font-style: italic; }
+            .order-item { background-color: #ffffff; border: 2px solid #e0e0e0; padding: 20px; margin: 20px 0; }
+            .order-item-header { font-size: 20px; font-weight: bold; color: #FF0000; background-color: #fff3cd; margin: -20px -20px 15px -20px; padding: 15px 20px; border-bottom: 3px solid #ffc107; }
+            .item-detail { margin: 10px 0; padding: 10px; background-color: #f8f9fa; border-left: 3px solid #FF0000; }
+            .item-detail-label { display: inline-block; min-width: 180px; font-weight: bold; color: #000; font-size: 15px; }
+            .item-detail-value { color: #333; font-size: 15px; }
+            .empty-value { color: #999; font-style: italic; }
             .price { background-color: #28a745; color: white; padding: 12px; text-align: center; font-size: 20px; font-weight: bold; margin-top: 15px; }
-            .total-section { background-color: #000; color: white; padding: 25px; text-align: center; margin: 30px 0 0 0; }
-            .total-section h2 { margin: 0; font-size: 32px; }
+            .total-section { background-color: #FF0000; color: white; padding: 25px; text-align: center; margin: 30px 0 0 0; }
+            .total-section h2 { margin: 0; font-size: 32px; color: white; }
             .footer { background-color: #333; color: white; padding: 15px; text-align: center; font-size: 14px; }
         </style>
     </head>
-    <body style="margin: 0; padding: 0; font-family: Arial, sans-serif; background-color: #ffffff;">
-        <div class="container" style="max-width: 900px; margin: 0 auto; background-color: #ffffff;">
+    <body>
+        <div class="container">
             <!-- Header -->
-            <div class="header" style="background-color: #000000; padding: 25px; text-align: center; color: white;">
-                <h1 style="margin: 0; font-size: 28px; color: #ffffff;">🚨 NOUVELLE COMMANDE</h1>
-                <p style="margin: 5px 0 0 0; font-size: 18px; color: #ffffff;"><?= htmlspecialchars($orderData['orderNumber']) ?></p>
+            <div class="header">
+                <h1>🚨 NOUVELLE COMMANDE</h1>
+                <p style="margin: 5px 0 0 0; font-size: 18px;"><?= htmlspecialchars($orderData['orderNumber']) ?></p>
             </div>
             
             <!-- Mode de livraison -->
-            <div class="mode-badge" style="background-color: #FFC107; color: #000; padding: 20px; text-align: center; font-size: 24px; font-weight: bold; margin: 0;">
+            <div class="mode-badge">
                 <?= $deliveryMode ?>
             </div>
             
             <!-- Informations client -->
-            <div class="content" style="padding: 30px; color: #000000; background-color: #ffffff;">
-                <div class="section" style="margin: 25px 0; padding: 20px; background-color: #ffffff; border: 2px solid #000;">
-                    <h3 style="margin-top: 0; color: #000; font-size: 20px;">👤 INFORMATIONS CLIENT</h3>
-                    <div class="client-info" style="font-size: 16px; line-height: 2; color: #000;">
-                        <strong style="color: #000;">Nom :</strong> <?= htmlspecialchars($orderData['customer']['firstName']) ?> <?= htmlspecialchars($orderData['customer']['lastName']) ?><br>
-                        <strong style="color: #000;">Téléphone :</strong> <?= htmlspecialchars($orderData['customer']['phone']) ?><br>
+            <div class="content">
+                <div class="section">
+                    <h3>👤 INFORMATIONS CLIENT</h3>
+                    <div class="client-info">
+                        <strong>Nom :</strong> <?= htmlspecialchars($orderData['customer']['firstName']) ?> <?= htmlspecialchars($orderData['customer']['lastName']) ?><br>
+                        <strong>Téléphone :</strong> <?= htmlspecialchars($orderData['customer']['phone']) ?><br>
                         <?php if (!empty($orderData['customer']['email'])): ?>
-                            <strong style="color: #000;">Email :</strong> <?= htmlspecialchars($orderData['customer']['email']) ?><br>
+                            <strong>Email :</strong> <?= htmlspecialchars($orderData['customer']['email']) ?><br>
                         <?php endif; ?>
                         
                         <?php if ($orderData['customer']['deliveryMode'] === 'livraison'): ?>
-                            <strong style="color: #000;">Adresse :</strong> <?= htmlspecialchars($orderData['customer']['address']) ?><br>
-                            <strong style="color: #000;">Code postal :</strong> <?= htmlspecialchars($orderData['customer']['postalCode']) ?> <?= htmlspecialchars($orderData['customer']['city']) ?>
+                            <strong>Adresse :</strong> <?= htmlspecialchars($orderData['customer']['address']) ?><br>
+                            <strong>Code postal :</strong> <?= htmlspecialchars($orderData['customer']['postalCode']) ?> <?= htmlspecialchars($orderData['customer']['city']) ?>
                         <?php endif; ?>
                     </div>
                 </div>
                 
                 <!-- Détail de la commande -->
-                <div class="section" style="margin: 25px 0; padding: 20px; background-color: #ffffff; border: 2px solid #000;">
-                    <h3 style="margin-top: 0; color: #000; font-size: 20px;">🍕 DÉTAIL DE LA COMMANDE</h3>
+                <div class="section">
+                    <h3>🍕 DÉTAIL DE LA COMMANDE</h3>
                     
                     <?php foreach ($orderData['items'] as $item): ?>
                         <?php $custom = $item['customization'] ?? []; ?>
                         
-                        <div class="order-item" style="background-color: #ffffff; border: 3px solid #000; padding: 20px; margin: 20px 0;">
-                            <div class="order-item-header" style="font-size: 20px; font-weight: bold; color: #ffffff; background-color: #000000; margin: -20px -20px 15px -20px; padding: 15px 20px; border: 2px solid #000;">
+                        <div class="order-item">
+                            <div class="order-item-header">
                                 <?php 
                                 $productType = '';
                                 if (isset($item['type'])) {
@@ -284,7 +284,7 @@ function getKitchenEmailTemplate($orderData) {
             <!-- Footer -->
             <div class="footer">
                 <p style="margin: 0;">Pizza Club - <?= date('d/m/Y à H:i') ?></p>
-                <p style="margin: 5px 0 0 0; font-size: 10px; color: #666;">📧 Email v20251211e - INLINE STYLES</p>
+                <p style="margin: 5px 0 0 0; font-size: 10px; color: #999;">📧 Email v20251211f - Couleurs mail client</p>
             </div>
         </div>
     </body>

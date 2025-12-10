@@ -167,7 +167,7 @@ function setupModalScrollLock() {
 }
 
 function initApp() {
-    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211c');
+    console.log('🍕 Pizza Club - Application initialisée | VERSION: 20251211g');
     updateCartUI();
     
     // Charger les préférences de livraison depuis le localStorage
@@ -854,7 +854,11 @@ function calculateItemPrice(basePrice, customization, quantity = 1, pizza = null
     // Pour formule midi, garder le prix de base (26cm inclus)
 
     // Ajouter le supplément pour base crème
-    if (customization.base === 'creme') {
+    // SAUF si la pizza a déjà base crème par défaut (category: 'creme')
+    const isPizzaBaseCreme = pizza && pizza.category === 'creme';
+    
+    if (customization.base === 'creme' && !isPizzaBaseCreme) {
+        // Supplément crème uniquement pour les pizzas qui sont normalement à base tomate
         if (isFormuleMidi) {
             price += 1.00; // +1€ pour crème en formule midi
         } else if (customization.size === 'grande') {
@@ -864,6 +868,7 @@ function calculateItemPrice(basePrice, customization, quantity = 1, pizza = null
         }
         // Pas de supplément pour Marmaille (26cm) normale
     }
+    // Si pizza base crème change vers tomate : gratuit (pas de supplément ni réduction)
 
     // Ajouter prix des ingrédients supplémentaires
     if (customization.addedIngredients) {
