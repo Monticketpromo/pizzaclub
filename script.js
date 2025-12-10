@@ -3574,18 +3574,27 @@ function displayDeliveryTimeInfo() {
             </div>
         `;
     } else {
-        // Mode maintenant
+        // Mode maintenant - Calculer l'heure estimée de livraison
         const now = new Date();
-        const currentHour = now.getHours();
-        const currentMinutes = now.getMinutes();
+        
+        // Récupérer le mode de livraison pour calculer le bon délai
+        const mode = document.querySelector('input[name="deliveryMode"]:checked')?.value || 'livraison';
+        const delayMinutes = mode === 'livraison' ? 60 : 20; // 60 min livraison, 20 min emporter
+        
+        // Calculer l'heure estimée
+        const estimatedTime = new Date(now.getTime() + delayMinutes * 60000);
+        const estimatedHour = estimatedTime.getHours();
+        const estimatedMinutes = estimatedTime.getMinutes();
+        
+        const modeLabel = mode === 'livraison' ? 'livrée' : 'prête';
         
         displayDiv.innerHTML = `
             <div style="display: flex; align-items: center; gap: 15px;">
                 <i class="fas fa-bolt" style="font-size: 2rem; color: #FF9800;"></i>
                 <div>
-                    <p style="margin: 0; font-weight: 600;">Livraison dès que possible</p>
+                    <p style="margin: 0; font-weight: 600;">Commande ${modeLabel} dès que possible</p>
                     <p style="margin: 5px 0 0 0; color: #666;">
-                        Votre commande sera préparée immédiatement (estimée vers ${currentHour}h${currentMinutes < 10 ? '0' + currentMinutes : currentMinutes})
+                        Préparation immédiate - Estimée vers <strong>${estimatedHour}h${estimatedMinutes < 10 ? '0' + estimatedMinutes : estimatedMinutes}</strong>
                     </p>
                 </div>
             </div>
