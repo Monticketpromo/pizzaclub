@@ -1,0 +1,159 @@
+<?php
+/**
+ * INITIALISATION DES FICHIERS DE LOG
+ * Upload sur Hostinger et accède à : https://www.pizzaclub.re/init-files.php
+ */
+
+error_reporting(E_ALL);
+ini_set('display_errors', 1);
+date_default_timezone_set('Indian/Reunion');
+
+echo "<h1>🔧 Initialisation des fichiers de log</h1>";
+echo "<p>Date: " . date('d/m/Y H:i:s') . "</p>";
+echo "<hr>";
+
+// Chemins des fichiers
+$ordersFile = __DIR__ . '/orders.json';
+$debugFile = __DIR__ . '/debug-order.txt';
+
+echo "<h2>1️⃣ Vérification du répertoire</h2>";
+echo "Répertoire actuel: <code>" . __DIR__ . "</code><br>";
+echo "Permissions répertoire: <code>" . substr(sprintf('%o', fileperms(__DIR__)), -4) . "</code><br><br>";
+
+// Test écriture répertoire
+if (is_writable(__DIR__)) {
+    echo "✅ <strong>Le répertoire est accessible en écriture</strong><br>";
+} else {
+    echo "❌ <strong>Le répertoire n'est PAS accessible en écriture</strong><br>";
+    echo "➡️ Contacte le support Hostinger pour corriger les permissions<br>";
+}
+
+echo "<hr>";
+
+// Créer orders.json
+echo "<h2>2️⃣ Création du fichier orders.json</h2>";
+echo "Chemin: <code>$ordersFile</code><br>";
+
+if (file_exists($ordersFile)) {
+    echo "⚠️ Le fichier existe déjà<br>";
+    $content = file_get_contents($ordersFile);
+    $orders = json_decode($content, true);
+    echo "Nombre de commandes: <strong>" . (is_array($orders) ? count($orders) : 0) . "</strong><br>";
+} else {
+    // Créer le fichier avec un tableau vide
+    $result = file_put_contents($ordersFile, '[]');
+    if ($result !== false) {
+        echo "✅ <strong>Fichier créé avec succès</strong><br>";
+        echo "Taille: " . filesize($ordersFile) . " octets<br>";
+        echo "Permissions: <code>" . substr(sprintf('%o', fileperms($ordersFile)), -4) . "</code><br>";
+    } else {
+        echo "❌ <strong>Échec de la création du fichier</strong><br>";
+        echo "Erreur: " . error_get_last()['message'] . "<br>";
+    }
+}
+
+echo "<hr>";
+
+// Créer debug-order.txt
+echo "<h2>3️⃣ Création du fichier debug-order.txt</h2>";
+echo "Chemin: <code>$debugFile</code><br>";
+
+if (file_exists($debugFile)) {
+    echo "⚠️ Le fichier existe déjà<br>";
+    echo "Taille: " . number_format(filesize($debugFile)) . " octets<br>";
+    echo "Dernière modification: " . date('d/m/Y H:i:s', filemtime($debugFile)) . "<br>";
+} else {
+    // Créer le fichier avec un message initial
+    $initialContent = "=== FICHIER DEBUG INITIALISÉ ===\n";
+    $initialContent .= "Date: " . date('Y-m-d H:i:s') . "\n";
+    $initialContent .= "Les commandes seront enregistrées ici.\n\n";
+    
+    $result = file_put_contents($debugFile, $initialContent);
+    if ($result !== false) {
+        echo "✅ <strong>Fichier créé avec succès</strong><br>";
+        echo "Taille: " . filesize($debugFile) . " octets<br>";
+        echo "Permissions: <code>" . substr(sprintf('%o', fileperms($debugFile)), -4) . "</code><br>";
+    } else {
+        echo "❌ <strong>Échec de la création du fichier</strong><br>";
+        echo "Erreur: " . error_get_last()['message'] . "<br>";
+    }
+}
+
+echo "<hr>";
+
+// Test d'écriture
+echo "<h2>4️⃣ Test d'écriture dans les fichiers</h2>";
+
+// Test orders.json
+echo "<strong>Test orders.json:</strong><br>";
+$testData = [
+    [
+        'orderNumber' => 'TEST-' . date('YmdHis'),
+        'timestamp' => date('Y-m-d H:i:s'),
+        'customer' => [
+            'firstName' => 'Test',
+            'lastName' => 'Initialisation'
+        ],
+        'items' => [],
+        'total' => 0
+    ]
+];
+$writeResult = file_put_contents($ordersFile, json_encode($testData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+if ($writeResult !== false) {
+    echo "✅ Écriture réussie ($writeResult octets)<br>";
+    
+    // Relire pour vérifier
+    $readContent = file_get_contents($ordersFile);
+    $decoded = json_decode($readContent, true);
+    if ($decoded && isset($decoded[0]['orderNumber'])) {
+        echo "✅ Lecture et décodage JSON réussis<br>";
+        
+        // Nettoyer le fichier test
+        file_put_contents($ordersFile, '[]');
+        echo "✅ Fichier remis à zéro<br>";
+    } else {
+        echo "❌ Erreur de décodage JSON<br>";
+    }
+} else {
+    echo "❌ Échec de l'écriture<br>";
+}
+
+echo "<br><strong>Test debug-order.txt:</strong><br>";
+$testDebug = "\n=== TEST ÉCRITURE " . date('Y-m-d H:i:s') . " ===\n";
+$appendResult = file_put_contents($debugFile, $testDebug, FILE_APPEND);
+if ($appendResult !== false) {
+    echo "✅ Écriture réussie ($appendResult octets ajoutés)<br>";
+} else {
+    echo "❌ Échec de l'écriture<br>";
+}
+
+echo "<hr>";
+
+// Lister tous les fichiers .txt et .json du répertoire
+echo "<h2>5️⃣ Fichiers existants dans le répertoire</h2>";
+$files = glob(__DIR__ . '/*.{json,txt}', GLOB_BRACE);
+if (count($files) > 0) {
+    echo "<ul>";
+    foreach ($files as $file) {
+        $basename = basename($file);
+        $size = filesize($file);
+        $modified = date('d/m/Y H:i:s', filemtime($file));
+        $perms = substr(sprintf('%o', fileperms($file)), -4);
+        echo "<li><strong>$basename</strong> - " . number_format($size) . " octets - Modifié: $modified - Permissions: $perms</li>";
+    }
+    echo "</ul>";
+} else {
+    echo "Aucun fichier .json ou .txt trouvé dans le répertoire.<br>";
+}
+
+echo "<hr>";
+echo "<h2>📊 Conclusion</h2>";
+
+if (file_exists($ordersFile) && file_exists($debugFile) && is_writable($ordersFile) && is_writable($debugFile)) {
+    echo "<p style='color: green; font-size: 18px;'><strong>✅ Tous les fichiers sont prêts !</strong></p>";
+    echo "<p>Tu peux maintenant passer une commande test et vérifier <a href='orders-log.php'>orders-log.php</a></p>";
+} else {
+    echo "<p style='color: red; font-size: 18px;'><strong>❌ Il y a des problèmes</strong></p>";
+    echo "<p>Contacte le support Hostinger pour corriger les permissions d'écriture.</p>";
+}
+?>
