@@ -2,18 +2,131 @@
 /**
  * VISUALISEUR DE COMMANDES
  * Affiche toutes les commandes enregistrées
- * URL: https://www.pizzaclub.re/orders-log.php?key=pizzaclub2024
+ * URL: https://www.pizzaclub.re/orders-log.php
  */
 
-// Sécurité - nécessite une clé d'accès
-$ACCESS_KEY = 'pizzaclub2024'; // Change cette clé !
+session_start();
+date_default_timezone_set('Indian/Reunion');
 
-if (!isset($_GET['key']) || $_GET['key'] !== $ACCESS_KEY) {
-    http_response_code(403);
-    die('Accès interdit');
+// Configuration
+$LOGIN = 'pizzaclub';
+$PASSWORD = 'pizza2024'; // CHANGE CE MOT DE PASSE !
+
+// Gestion connexion
+if (isset($_POST['login']) && isset($_POST['password'])) {
+    if ($_POST['login'] === $LOGIN && $_POST['password'] === $PASSWORD) {
+        $_SESSION['logged_orders'] = true;
+    } else {
+        $error = 'Identifiants incorrects';
+    }
 }
 
-date_default_timezone_set('Indian/Reunion');
+// Déconnexion
+if (isset($_GET['logout'])) {
+    session_destroy();
+    header('Location: orders-log.php');
+    exit;
+}
+
+// Vérifier si connecté
+if (!isset($_SESSION['logged_orders']) || $_SESSION['logged_orders'] !== true) {
+    ?>
+    <!DOCTYPE html>
+    <html lang="fr">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>🔐 Connexion - Commandes Pizza Club</title>
+        <style>
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+                font-family: Arial, sans-serif; 
+                background: linear-gradient(135deg, #FF0000 0%, #8B0000 100%);
+                height: 100vh;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            .login-box {
+                background: white;
+                padding: 40px;
+                border-radius: 10px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                width: 100%;
+                max-width: 400px;
+            }
+            h1 { 
+                color: #FF0000; 
+                text-align: center;
+                margin-bottom: 30px;
+            }
+            .form-group {
+                margin-bottom: 20px;
+            }
+            label {
+                display: block;
+                margin-bottom: 5px;
+                font-weight: bold;
+                color: #333;
+            }
+            input {
+                width: 100%;
+                padding: 12px;
+                border: 2px solid #ddd;
+                border-radius: 5px;
+                font-size: 16px;
+            }
+            input:focus {
+                outline: none;
+                border-color: #FF0000;
+            }
+            button {
+                width: 100%;
+                padding: 15px;
+                background: #FF0000;
+                color: white;
+                border: none;
+                border-radius: 5px;
+                font-size: 18px;
+                font-weight: bold;
+                cursor: pointer;
+            }
+            button:hover {
+                background: #CC0000;
+            }
+            .error {
+                background: #ffebee;
+                color: #c62828;
+                padding: 10px;
+                border-radius: 5px;
+                margin-bottom: 20px;
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="login-box">
+            <h1>🔐 Connexion</h1>
+            <?php if (isset($error)): ?>
+                <div class="error"><?= htmlspecialchars($error) ?></div>
+            <?php endif; ?>
+            <form method="POST">
+                <div class="form-group">
+                    <label for="login">Identifiant</label>
+                    <input type="text" id="login" name="login" required autofocus>
+                </div>
+                <div class="form-group">
+                    <label for="password">Mot de passe</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                <button type="submit">Se connecter</button>
+            </form>
+        </div>
+    </body>
+    </html>
+    <?php
+    exit;
+}
 
 // Lire le fichier de commandes
 $ordersFile = __DIR__ . '/orders.json';
@@ -43,8 +156,32 @@ $debugFile = __DIR__ . '/debug-order.txt';
         }
         h1 { 
             color: #FF0000; 
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             text-align: center;
+        }
+        .header-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+        .logout-btn {
+            background: #666;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            text-decoration: none;
+            font-size: 14px;
+        }
+        .logout-btn:hover {
+            background: #444;
+        }
+        .info-box {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #2196F3;
         }
         .order { 
             border: 2px solid #e0e0e0; 
@@ -140,7 +277,16 @@ $debugFile = __DIR__ . '/debug-order.txt';
 </head>
 <body>
     <div class="container">
-        <h1>📋 Historique des commandes Pizza Club</h1>
+        <div class="header-bar">
+            <h1>📋 Historique des commandes Pizza Club</h1>
+            <a href="?logout" class="logout-btn">🚪 Déconnexion</a>
+        </div>
+        
+        <div class="info-box">
+            <strong>📍 Fichiers:</strong><br>
+            JSON: <?= file_exists($ordersFile) ? '✅ Trouvé' : '❌ Introuvable' ?> (<?= $ordersFile ?>)<br>
+            Debug: <?= file_exists($debugFile) ? '✅ Trouvé' : '❌ Introuvable' ?> (<?= $debugFile ?>)
+        </div>
         
         <?php
         // Afficher les commandes du fichier JSON
@@ -149,6 +295,8 @@ $debugFile = __DIR__ . '/debug-order.txt';
             $orders = json_decode($ordersJson, true);
             
             if ($orders && count($orders) > 0) {
+                echo "<div class='info-box'><strong>📊 " . count($orders) . " commande(s) enregistrée(s)</strong></div>";
+                
                 // Trier par date décroissante (plus récentes en premier)
                 usort($orders, function($a, $b) {
                     return strtotime($b['timestamp']) - strtotime($a['timestamp']);
@@ -217,10 +365,14 @@ $debugFile = __DIR__ . '/debug-order.txt';
                     <?php
                 }
             } else {
-                echo '<div class="no-orders">Aucune commande enregistrée</div>';
+                echo '<div class="no-orders">Aucune commande enregistrée (le fichier JSON est vide)</div>';
             }
         } else {
-            echo '<div class="no-orders">Fichier de commandes introuvable</div>';
+            echo '<div class="no-orders">';
+            echo '<strong>❌ Fichier orders.json introuvable</strong><br><br>';
+            echo 'Chemin recherché: <code>' . $ordersFile . '</code><br><br>';
+            echo 'Le fichier sera créé automatiquement à la prochaine commande.';
+            echo '</div>';
         }
         ?>
         
@@ -230,12 +382,20 @@ $debugFile = __DIR__ . '/debug-order.txt';
             <div class="debug-content">
                 <?php
                 if (file_exists($debugFile)) {
-                    // Lire les 50 dernières lignes
-                    $lines = file($debugFile);
-                    $lastLines = array_slice($lines, -200);
-                    echo htmlspecialchars(implode('', $lastLines));
+                    // Lire toutes les lignes
+                    $content = file_get_contents($debugFile);
+                    if (empty($content)) {
+                        echo "Le fichier debug-order.txt existe mais est vide.";
+                    } else {
+                        // Afficher les 5000 derniers caractères (environ 3-5 dernières commandes)
+                        $lines = file($debugFile);
+                        $lastLines = array_slice($lines, -300); // 300 dernières lignes
+                        echo htmlspecialchars(implode('', $lastLines));
+                    }
                 } else {
-                    echo "Fichier debug-order.txt introuvable";
+                    echo "❌ Fichier debug-order.txt introuvable\n\n";
+                    echo "Chemin recherché: " . $debugFile . "\n\n";
+                    echo "Le fichier sera créé automatiquement à la prochaine commande.";
                 }
                 ?>
             </div>
