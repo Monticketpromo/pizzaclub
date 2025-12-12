@@ -477,9 +477,9 @@ if (!empty($orderData['customer']['comments'])) {
 
 // Utiliser le template HTML pour l'email restaurant
 require_once __DIR__ . '/email-template-kitchen.php';
-$message = getKitchenEmailTemplate($orderData);
+$htmlMessage = getKitchenEmailTemplate($orderData);
 
-// Headers pour l'email restaurant - HTML cette fois
+// Headers pour l'email restaurant - HTML
 $headers = "From: Pizza Club <commande@pizzaclub.re>\r\n";
 $headers .= "Reply-To: " . ($orderData['customer']['email'] ?: 'commande@pizzaclub.re') . "\r\n";
 $headers .= "Return-Path: commande@pizzaclub.re\r\n";
@@ -490,7 +490,7 @@ $headers .= "MIME-Version: 1.0\r\n";
 $headers .= "Content-Type: text/html; charset=UTF-8\r\n";
 
 // Envoi de l'email au restaurant
-$emailSent = mail($to, $subject, $message, $headers);
+$emailSent = mail($to, $subject, $htmlMessage, $headers);
 
 // Log pour debug
 error_log("Email restaurant - To: $to, Subject: $subject, Sent: " . ($emailSent ? 'YES' : 'NO'));
@@ -499,7 +499,7 @@ error_log("Email restaurant - To: $to, Subject: $subject, Sent: " . ($emailSent 
 if (!$emailSent) {
     // Tenter avec un autre domaine email si disponible
     $backupEmail = 'contact@pizzaclub.re'; // ou tout autre email de secours
-    $emailSent = mail($backupEmail, $subject, $message, $headers);
+    $emailSent = mail($backupEmail, $subject, $htmlMessage, $headers);
     error_log("Email secours - To: $backupEmail, Sent: " . ($emailSent ? 'YES' : 'NO'));
 }
 
@@ -514,7 +514,7 @@ if (!empty($orderData['customer']['email'])) {
             error_log("ERREUR: email-template.php introuvable");
         } else {
             require_once __DIR__ . '/email-template.php';
-            $clientMessage = getClientEmailTemplate($orderData);
+            $clientHtmlMessage = getClientEmailTemplate($orderData);
         }
         
         $clientHeaders = "From: Pizza Club <commande@pizzaclub.re>\r\n";
@@ -524,7 +524,7 @@ if (!empty($orderData['customer']['email'])) {
         $clientHeaders .= "MIME-Version: 1.0\r\n";
         $clientHeaders .= "Content-Type: text/html; charset=UTF-8\r\n";
         
-        $clientEmailSent = mail($orderData['customer']['email'], $clientSubject, $clientMessage, $clientHeaders);
+        $clientEmailSent = mail($orderData['customer']['email'], $clientSubject, $clientHtmlMessage, $clientHeaders);
         error_log("Email client - To: {$orderData['customer']['email']}, Sent: " . ($clientEmailSent ? 'YES' : 'NO'));
     } catch (Exception $e) {
         error_log("ERREUR email client: " . $e->getMessage());
