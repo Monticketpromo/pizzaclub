@@ -33,6 +33,34 @@ file_put_contents(
     FILE_APPEND
 );
 
+// ========================================
+// SAUVEGARDE JSON DES COMMANDES
+// ========================================
+$ordersFile = __DIR__ . '/orders.json';
+$ordersData = [];
+
+// Lire les commandes existantes
+if (file_exists($ordersFile)) {
+    $existingJson = file_get_contents($ordersFile);
+    $ordersData = json_decode($existingJson, true) ?: [];
+}
+
+// Ajouter la nouvelle commande avec timestamp
+$orderToSave = $orderData;
+$orderToSave['timestamp'] = date('Y-m-d H:i:s');
+
+$ordersData[] = $orderToSave;
+
+// Limiter à 100 dernières commandes
+if (count($ordersData) > 100) {
+    $ordersData = array_slice($ordersData, -100);
+}
+
+// Sauvegarder
+file_put_contents($ordersFile, json_encode($ordersData, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE));
+error_log("Commande sauvegardée dans orders.json");
+// ========================================
+
 if (!$orderData) {
     http_response_code(400);
     echo json_encode(['success' => false, 'error' => 'Données invalides']);
